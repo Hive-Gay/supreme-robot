@@ -1,0 +1,51 @@
+{{ define "accordion" -}}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.79.0">
+    <title>The Hive</title>
+
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/css/accordion.css" rel="stylesheet" crossorigin="anonymous">
+</head>
+<body class="text-center">
+
+<main class="accordion-main">
+    <img src="/static/img/hivelogo_160.png" class="logo mb-2"/>
+    <h1 class="mb-5">The Hive Directory</h1>
+    <div class="accordion" id="accordionExample">
+{{range $index, $header := .Accordion.Accordion}}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading{{$index}}">
+                <button class="accordion-button{{if ne $index 0}} collapsed{{end}}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{$index}}" aria-expanded="{{if eq $index 0}}true{{else}}false{{end}}" aria-controls="collapse{{$index}}">
+                    {{$header.Title}}
+                </button>
+            </h2>
+            <div id="collapse{{$index}}" class="accordion-collapse collapse{{if eq $index 0}} show{{end}}" aria-labelledby="heading{{$index}}" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <div class="d-grid gap-2">
+{{range $index2, $link := $header.Links}}
+                        <a class="btn btn-primary" href="{{$link.Link}}" target=”_blank”>{{$link.Title}}</a>
+{{end}}
+                    </div>
+                </div>
+            </div>
+        </div>
+{{end}}
+    </div>
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+</body>
+</html>
+
+{{- end }}

@@ -6,7 +6,8 @@ require (
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/garyburd/redigo v1.6.2
 	github.com/gorilla/mux v1.7.3
-	github.com/gorilla/sessions v1.1.1 // indirect
+	github.com/gorilla/sessions v1.1.1
+	github.com/jinzhu/copier v0.2.3
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/juju/ansiterm v0.0.0-20180109212912-720a0952cc2a // indirect
 	github.com/juju/loggo v0.0.0-20200526014432-9ce3a2e09b5e

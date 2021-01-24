@@ -118,8 +118,11 @@ func Init(rp *redis.Pool) error {
 	r := mux.NewRouter()
 	r.Use(Middleware)
 
+	// Static Files
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(pkger.Dir("/webapp/static"))))
+
 	r.HandleFunc("/login", HandleLogin).Methods("GET")
-	//r.HandleFunc("/logout", HandleLogout).Methods("GET")
+	r.HandleFunc("/logout", HandleLogout).Methods("GET")
 	r.HandleFunc("/oauth/callback", HandleOauthCallback).Methods("GET")
 
 	// Protected Pages
