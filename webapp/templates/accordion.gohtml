@@ -4,11 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <meta name="generator" content="Hugo 0.79.0">
     <title>The Hive</title>
-
 
     <!-- Bootstrap core CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
@@ -22,7 +18,7 @@
     <img src="/static/img/hivelogo_160.png" class="logo mb-2"/>
     <h1 class="mb-5">The Hive Directory</h1>
     <div class="accordion" id="accordionExample">
-{{range $index, $header := .Accordion.Accordion}}
+{{range $index, $header := .Accordion}}
         <div class="accordion-item">
             <h2 class="accordion-header" id="heading{{$index}}">
                 <button class="accordion-button{{if ne $index 0}} collapsed{{end}}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{$index}}" aria-expanded="{{if eq $index 0}}true{{else}}false{{end}}" aria-controls="collapse{{$index}}">
@@ -47,5 +43,55 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 </body>
 </html>
+{{- end }}
 
+{{ define "accordion_dashboard" -}}
+{{- template "header" . -}}
+<div role="main" class="container">
+    <div class="row">
+        <div class="col">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1><i class="fas fa-list-alt"></i> Accordion Dashboard</h1>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                <h2>Headers</h2>
+                <a href="" class="btn btn-outline-success btn-sm"><i class="fas fa-plus"></i></a>
+            </div>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Link Count</th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th scope="row"><a href="/app/accordion/0">The Hive<a/></th>
+                    <td>2</td>
+                    <td class="text-right"></td>
+                </tr>
+                <tr>
+                    <th scope="row"><a href="/app/accordion/0">C0sm0</a><a/></th>
+                    <td>1</td>
+                    <td class="text-right">
+                        <a href="" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i></a>
+                        <a href="" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash"></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Tyr</th>
+                    <td>3</td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div><!-- /.container -->
+{{- template "footer" . -}}
 {{- end }}

@@ -14,7 +14,7 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 	tmplVars := &HomeTemplate{}
 	err := initTemplate(w, r, tmplVars)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 

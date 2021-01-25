@@ -118,9 +118,14 @@ func Init(rp *redis.Pool) error {
 	r := mux.NewRouter()
 	r.Use(Middleware)
 
+	// Error Pages
+	r.NotFoundHandler = NotFoundHandler()
+	r.MethodNotAllowedHandler = MethodNotAllowedHandler()
+
 	// Static Files
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(pkger.Dir("/webapp/static"))))
 
+	r.HandleFunc("/", HandleAccordion).Methods("GET")
 	r.HandleFunc("/login", HandleLogin).Methods("GET")
 	r.HandleFunc("/logout", HandleLogout).Methods("GET")
 	r.HandleFunc("/oauth/callback", HandleOauthCallback).Methods("GET")
@@ -129,6 +134,7 @@ func Init(rp *redis.Pool) error {
 	protected := r.PathPrefix("/app/").Subrouter()
 	protected.Use(MiddlewareRequireAuth)
 	protected.HandleFunc("/", GetHome).Methods("GET")
+	protected.HandleFunc("/accordion", HandleAccordionDashGet).Methods("GET")
 
 	go func() {
 		srv := &http.Server{

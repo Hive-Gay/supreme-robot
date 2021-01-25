@@ -14,6 +14,12 @@ func makeNavbar(r *http.Request) (navbar *[]templateNavbarNode) {
 			FAIcon:   "home",
 			URL:      "/app/",
 		},
+		{
+			Text:     "Accordion",
+			MatchStr: "^/app/accordion",
+			FAIcon:   "list-alt",
+			URL:      "/app/accordion",
+		},
 	}
 
 	for i := 0; i < len(newNavbar); i++ {

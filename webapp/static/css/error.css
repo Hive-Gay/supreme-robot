@@ -1,0 +1,24 @@
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background-image: url("/static/img/space_bkg.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-color: #000;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+.centerbox {
+    width: 100%;
+    padding: 15px;
+    margin: auto;
+}

@@ -1,0 +1,13 @@
+{{ define "error" -}}
+{{- template "header" . -}}
+    <div class="centerbox" style="max-width: 330px">
+        <img class="mb-4" src="{{.BotImage}}" alt="" width="100" height="100">
+        <h1 class="h3 mb-3 font-weight-normal">{{.Header}}</h1>
+        <h2 class="h4 mb-3 font-weight-normal">{{.SubHeader}}</h2>
+        <p class="mb-5">{{.Paragraph}}</p>
+
+        <a class="btn btn-lg btn-primary btn-block" href="{{.ButtonHRef}}">{{.ButtonLabel}}</a>
+        <a class="btn btn-lg btn-primary btn-block" href="javascript:history.back();">Back</a>
+    </div>
+{{- template "footer" . -}}
+{{ end }}
