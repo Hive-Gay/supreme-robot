@@ -63,6 +63,7 @@ func Init(rp *redis.Pool) error {
 
 	// Register models for GOB
 	gob.Register(models.User{})
+	gob.Register(templateAlert{})
 
 	// Configure Oauth
 	AppHostname := os.Getenv("APP_HOSTNAME")
@@ -135,7 +136,11 @@ func Init(rp *redis.Pool) error {
 	protected.Use(MiddlewareRequireAuth)
 	protected.HandleFunc("/", GetHome).Methods("GET")
 	protected.HandleFunc("/accordion", HandleAccordionDashGet).Methods("GET")
+	protected.HandleFunc("/accordion/add", HandleAccordionHeaderAddGet).Methods("GET")
+	protected.HandleFunc("/accordion/add", HandleAccordionHeaderAddPost).Methods("POST")
+	protected.HandleFunc("/accordion/{id}/edit", HandleAccordionHeaderEditGet).Methods("GET")
 
+	logger.Debugf("starting webapp server")
 	go func() {
 		srv := &http.Server{
 			Handler:      r,
@@ -145,7 +150,7 @@ func Init(rp *redis.Pool) error {
 		}
 		err := srv.ListenAndServe()
 		if err != nil {
-			logger.Errorf("Could not start web server %s", err.Error())
+			logger.Errorf("Could not start webapp server %s", err.Error())
 		}
 	}()
 

@@ -85,7 +85,7 @@ func MiddlewareRequireAuth(next http.Handler) http.Handler {
 			us.Values["login-redirect"] = r.URL.Path
 			err := us.Save(r, w)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 				return
 			}
 
@@ -101,7 +101,7 @@ func MiddlewareRequireAuth(next http.Handler) http.Handler {
 			us.Values["login-redirect"] = r.URL.Path
 			err := us.Save(r, w)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 				return
 			}
 
@@ -109,6 +109,20 @@ func MiddlewareRequireAuth(next http.Handler) http.Handler {
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}
+
+		// Check for UWU Crew group
+		UWUCrew := false
+		for _, group := range user.Groups {
+			if group == "/UWU Crew" {
+				UWUCrew = true
+				break
+			}
+		}
+		if !UWUCrew {
+			returnErrorPage(w, r, http.StatusUnauthorized, "Ask Tyr to join the UWU Crew")
+			return
+		}
+
 
 		next.ServeHTTP(w, r)
 	})

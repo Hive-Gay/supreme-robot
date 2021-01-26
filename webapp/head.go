@@ -1,8 +1,13 @@
 package webapp
 
 var HeadFrameworkCSSTemplate = []templateHeadLink{
+	//{
+	//	HRef: "/static/vendor/bootstrap-4.5.3-cyborg.min.css",
+	//	Rel: "stylesheet",
+	//	CrossOrigin: "anonymous",
+	//},
 	{
-		HRef: "/static/vendor/bootstrap-4.5.3-cyborg.min.css",
+		HRef: "/static/vendor/hive-bootstrap.css",
 		Rel: "stylesheet",
 		CrossOrigin: "anonymous",
 	},

@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/Hive-Gay/supreme-robot/models"
 	"github.com/Hive-Gay/supreme-robot/webapp"
 	"github.com/garyburd/redigo/redis"
 	"github.com/juju/loggo"
@@ -56,11 +57,18 @@ func main() {
 			logger.Infof("Starting Supreme Robot")
 			redisPool := initRedisPool()
 
+		err = models.Init()
+		if err != nil {
+			logger.Errorf("could not start models: %s", err.Error())
+			return
+		}
+
 			err = webapp.Init(redisPool)
 			if err != nil {
 				logger.Errorf("could not start webapp: %s", err.Error())
 				return
 			}
+
 
 			// Wait for SIGINT and SIGTERM (HIT CTRL-C)
 			nch := make(chan os.Signal)

@@ -11,7 +11,7 @@ type User struct {
 	AuthTime          int64    `json:"auth_time"`
 	EmailVerified     bool     `json:"email_verified"`
 	ExpiresAt         int64    `json:"exp"`
-	Groups            []string `json:"groups"`
+	Groups            []string `json:"group"`
 	IssuedAt          int64    `json:"iat"`
 	Issuer            string   `json:"iss"`
 	SessionState      string   `json:"session_state"`
