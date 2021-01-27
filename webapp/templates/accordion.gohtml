@@ -12,115 +12,32 @@
 </head>
 <body class="text-center">
 
-<main class="accordion-main">
-    <img src="/static/img/hivelogo_160.png" class="logo mb-2"/>
-    <h1 class="mb-5">The Hive Directory</h1>
-    <div class="accordion" id="accordionExample">
+    <main class="accordion-main">
+        <img src="/static/img/hivelogo_160.png" class="logo mb-2"/>
+        <h1 class="mb-5">The Hive Directory</h1>
+        <div class="accordion">
 {{range $index, $header := .Accordion}}
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="heading{{$index}}">
-                <button class="accordion-button{{if ne $index 0}} collapsed{{end}}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{$index}}" aria-expanded="{{if eq $index 0}}true{{else}}false{{end}}" aria-controls="collapse{{$index}}">
-                    {{$header.Title}}
-                </button>
-            </h2>
-            <div id="collapse{{$index}}" class="accordion-collapse collapse{{if eq $index 0}} show{{end}}" aria-labelledby="heading{{$index}}" data-bs-parent="#accordionExample">
-                <div class="accordion-body">
-                    <div class="d-grid gap-2">
-{{range $index2, $link := $header.Links}}
-                        <a class="btn btn-primary" href="{{$link.Link}}" target=”_blank”>{{$link.Title}}</a>
-{{end}}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading{{$index}}">
+                    <button class="accordion-button{{if ne $index 0}} collapsed{{end}}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{$index}}" aria-expanded="{{if eq $index 0}}true{{else}}false{{end}}" aria-controls="collapse{{$index}}">
+                        {{$header.Title}}
+                    </button>
+                </h2>
+                <div id="collapse{{$index}}" class="accordion-collapse collapse{{if eq $index 0}} show{{end}}" aria-labelledby="heading{{$index}}" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <div class="d-grid gap-2">
+                            {{range $index2, $link := $header.Links}}
+                                <a class="btn btn-primary" href="{{$link.Link}}" target=”_blank”>{{$link.Title}}</a>
+                            {{end}}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 {{end}}
-    </div>
-</main>
+        </div>
+    </main>
 
-
-<script src="/static/vendor/bootstrap-5.0.0-beta1-dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script src="/static/vendor/bootstrap-5.0.0-beta1-dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 </body>
 </html>
-{{- end }}
-
-{{ define "accordion_dashboard" -}}
-{{- template "header" . -}}
-<div role="main" class="container">
-    <div class="row">
-        <div class="col">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1><i class="fas fa-list-alt"></i> Accordion Dashboard</h1>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                <h2>Headers</h2>
-                <a href="/app/accordion/add" class="btn btn-outline-success btn-sm"><i class="fas fa-plus"></i></a>
-            </div>
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th scope="col">Title</th>
-                    <th scope="col">Link Count</th>
-                    <th scope="col"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <th scope="row"><a href="/app/accordion/0">The Hive<a/></th>
-                    <td>2</td>
-                    <td class="text-right"></td>
-                </tr>
-{{range $index, $header := .Accordion}}
-                <tr>
-                    <th scope="row"><a href="/app/accordion/{{$header.ID}}">{{$header.Title}}</a><a/></th>
-                    <td>{{$header.LinkCount}}</td>
-                    <td class="text-right">
-                        <a href="/app/accordion/{{$header.ID}}/edit" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i></a>
-                        <a href="/app/accordion/{{$header.ID}}/delete" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash"></i></a>
-                    </td>
-                </tr>
-{{end}}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div><!-- /.container -->
-{{- template "footer" . -}}
-{{- end }}
-
-{{ define "accordion_header_form" -}}
-{{- template "header" . -}}
-<div role="main" class="container">
-    <div class="row">
-        <div class="col">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1><i class="fas fa-list-alt"></i> Accordion Dashboard</h1>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                <h2>{{.TitleText}}</h2>
-            </div>
-            <form method="post">
-                <div class="form-group row">
-                    <label for="inputTitle" class="col-sm-2 col-form-label">Title</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="inputTitle" placeholder="Title" name="title"{{if ne .FormInputTitleValue ""}} value="{{.FormInputTitleValue}}"{{end}}{{if .FormInputTitleDisabled}} disabled{{end}}>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-10">
-                        <button type="submit" class="btn btn-{{.FormButtonSubmitColor}}">{{.FormButtonSubmitText}}</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div><!-- /.container -->
-{{- template "footer" . -}}
 {{- end }}

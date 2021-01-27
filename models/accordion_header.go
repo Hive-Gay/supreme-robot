@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type AccordionHeader struct {
 	Title string `db:"title" ,json:"title"`
@@ -20,6 +23,19 @@ func CreateAccordionHeader(a *AccordionHeader) error {
 		Scan(&a.ID, &a.CreatedAt, &a.UpdatedAt)
 
 	return err
+}
+
+func ReadAccordionHeader(id int) (*AccordionHeader, error) {
+	var header AccordionHeader
+	err := client.Get(&header, "SELECT id ,title, created_at, updated_at " +
+		"FROM accordion_headers WHERE id = $1;", id)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	return &header, nil
 }
 
 func ReadAccordionHeaders() ([]*AccordionHeader, error) {

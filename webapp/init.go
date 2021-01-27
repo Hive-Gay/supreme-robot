@@ -138,6 +138,7 @@ func Init(rp *redis.Pool) error {
 	protected.HandleFunc("/accordion", HandleAccordionDashGet).Methods("GET")
 	protected.HandleFunc("/accordion/add", HandleAccordionHeaderAddGet).Methods("GET")
 	protected.HandleFunc("/accordion/add", HandleAccordionHeaderAddPost).Methods("POST")
+	protected.HandleFunc("/accordion/{id}", HandleAccordionHeaderGet).Methods("GET")
 	protected.HandleFunc("/accordion/{id}/edit", HandleAccordionHeaderEditGet).Methods("GET")
 
 	logger.Debugf("starting webapp server")
