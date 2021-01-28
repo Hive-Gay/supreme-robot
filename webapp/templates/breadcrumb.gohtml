@@ -1,0 +1,13 @@
+{{ define "breadcrumb" }}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            {{- $len := len . -}}
+            {{- $len = dec $len -}}
+            {{- range $i, $b := .}}
+                {{- $active := eq $i $len -}}
+                <li class="breadcrumb-item{{if $active}} active{{end}}"{{if $active}} aria-current="page"{{end}}>{{if .HRef}}
+                    <a href="{{.HRef}}">{{end}}{{.Text}}{{if .HRef}}</a>{{end}}</li>
+            {{end -}}
+        </ol>
+    </nav>
+{{ end }}

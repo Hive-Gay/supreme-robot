@@ -8,14 +8,20 @@ import (
 type AccordionDashTemplate struct {
 	templateCommon
 
+	HiveLinkCount int
 	Headers []*models.AccordionHeader
 }
-
 
 func HandleAccordionDashGet(w http.ResponseWriter, r *http.Request) {
 	// Init template variables
 	tmplVars := &AccordionDashTemplate{}
 	err := initTemplate(w, r, tmplVars)
+	if err != nil {
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	tmplVars.HiveLinkCount, err = models.CountHiveHeaderLinks()
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return

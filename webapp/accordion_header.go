@@ -1,6 +1,7 @@
 package webapp
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/Hive-Gay/supreme-robot/models"
 	"github.com/gorilla/mux"
@@ -11,6 +12,7 @@ import (
 
 type AccordionHeaderTemplate struct {
 	templateCommon
+	Breadcrumbs *[]templateBreadcrumb
 
 	Header *models.AccordionHeader
 	Links  []*models.AccordionLink
@@ -18,6 +20,7 @@ type AccordionHeaderTemplate struct {
 
 type AccordionHeaderFormTemplate struct {
 	templateCommon
+	Breadcrumbs *[]templateBreadcrumb
 
 	TitleText              string
 	FormInputTitleDisabled bool
@@ -38,6 +41,17 @@ func HandleAccordionHeaderAddGet(w http.ResponseWriter, r *http.Request) {
 	tmplVars.TitleText = "Add Header"
 	tmplVars.FormButtonSubmitColor = "success"
 	tmplVars.FormButtonSubmitText = "Add"
+
+	// breadcrumbs
+	tmplVars.Breadcrumbs = &[]templateBreadcrumb{
+		{
+			HRef: "/app/accordion",
+			Text: "Accordion",
+		},
+		{
+			Text: tmplVars.TitleText,
+		},
+	}
 
 	err = templates.ExecuteTemplate(w, "accordion_header_form", tmplVars)
 	if err != nil {
@@ -75,7 +89,9 @@ func HandleAccordionHeaderAddPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/app/accordion", http.StatusFound)
 }
 
-func HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
+func HandleAccordionHeaderDeleteGet(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
 	// Init template variables
 	tmplVars := &AccordionHeaderFormTemplate{}
 	err := initTemplate(w, r, tmplVars)
@@ -84,9 +100,116 @@ func HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	headerID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	header, err := models.ReadAccordionHeader(headerID)
+	if err != nil {
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if header == nil {
+		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+		return
+	}
+
+	tmplVars.FormInputTitleValue = header.Title
+	tmplVars.FormInputTitleDisabled = true
+
+	tmplVars.TitleText = "Delete Header"
+	tmplVars.FormButtonSubmitColor = "danger"
+	tmplVars.FormButtonSubmitText = "Delete"
+
+	// breadcrumbs
+	tmplVars.Breadcrumbs = &[]templateBreadcrumb{
+		{
+			HRef: "/app/accordion",
+			Text: "Accordion",
+		},
+		{
+			Text: tmplVars.TitleText,
+		},
+	}
+
+	err = templates.ExecuteTemplate(w, "accordion_header_form", tmplVars)
+	if err != nil {
+		logger.Errorf("could not render template: %s", err.Error())
+	}
+}
+
+func HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	headerID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = models.DeleteAccordionHeader(headerID)
+	if err != nil {
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	us := r.Context().Value(SessionKey).(*sessions.Session)
+	us.Values["page-alert-success"] = templateAlert{Text: "Header deleted"}
+	err = us.Save(r, w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// redirect home
+	http.Redirect(w, r, "/app/accordion", http.StatusFound)
+
+}
+func HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	// Init template variables
+	tmplVars := &AccordionHeaderFormTemplate{}
+	err := initTemplate(w, r, tmplVars)
+	if err != nil {
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	headerID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	header, err := models.ReadAccordionHeader(headerID)
+	if err != nil {
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if header == nil {
+		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+		return
+	}
+
+	tmplVars.FormInputTitleValue = header.Title
+
 	tmplVars.TitleText = "Edit Header"
 	tmplVars.FormButtonSubmitColor = "warning"
 	tmplVars.FormButtonSubmitText = "Update"
+
+	// breadcrumbs
+	tmplVars.Breadcrumbs = &[]templateBreadcrumb{
+		{
+			HRef: "/app/accordion",
+			Text: "Accordion",
+		},
+		{
+			Text: tmplVars.TitleText,
+		},
+	}
 
 	err = templates.ExecuteTemplate(w, "accordion_header_form", tmplVars)
 	if err != nil {
@@ -95,7 +218,6 @@ func HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request) {
-	// get responder
 	vars := mux.Vars(r)
 
 	// Init template variables
@@ -117,6 +239,12 @@ func HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request) {
 			ID:    0,
 			Title: "The Hive",
 		}
+
+		tmplVars.Links, err = models.ReadAccordionLinks(sql.NullInt32{Valid: false})
+		if err != nil {
+			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+			return
+		}
 	} else {
 		tmplVars.Header, err = models.ReadAccordionHeader(headerID)
 		if err != nil {
@@ -127,6 +255,23 @@ func HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request) {
 			returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header %d not found", headerID))
 			return
 		}
+
+		tmplVars.Links, err = models.ReadAccordionLinks(sql.NullInt32{Valid: true, Int32: int32(tmplVars.Header.ID)})
+		if err != nil {
+			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
+
+	// breadcrumbs
+	tmplVars.Breadcrumbs = &[]templateBreadcrumb{
+		{
+			HRef: "/app/accordion",
+			Text: "Accordion",
+		},
+		{
+			Text: tmplVars.Header.Title,
+		},
 	}
 
 	err = templates.ExecuteTemplate(w, "accordion_header_view", tmplVars)

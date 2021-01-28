@@ -25,19 +25,19 @@
                 <tbody>
                 <tr>
                     <th scope="row"><a href="/app/accordion/0">The Hive<a/></th>
-                    <td>2</td>
-                    <td class="text-right"></td>
+                    <td>{{.HiveLinkCount}}</td>
+                    <td class="text-end"></td>
                 </tr>
-{{range $index, $header := .Headers}}
+{{- range $index, $header := .Headers}}
                 <tr>
                     <th scope="row"><a href="/app/accordion/{{$header.ID}}">{{$header.Title}}</a></th>
                     <td>{{$header.LinkCount}}</td>
-                    <td class="text-right">
+                    <td class="text-end">
                         <a href="/app/accordion/{{$header.ID}}/edit" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i></a>
                         <a href="/app/accordion/{{$header.ID}}/delete" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
-{{end}}
+{{- end}}
                 </tbody>
             </table>
         </div>

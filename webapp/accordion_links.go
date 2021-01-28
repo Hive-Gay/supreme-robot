@@ -1,6 +1,7 @@
 package webapp
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/Hive-Gay/supreme-robot/models"
 	"github.com/gorilla/mux"
@@ -11,6 +12,7 @@ import (
 
 type AccordionLinkFormTemplate struct {
 	templateCommon
+	Breadcrumbs *[]templateBreadcrumb
 
 	Header *models.AccordionHeader
 
@@ -52,7 +54,7 @@ func HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if tmplVars.Header == nil {
-			returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header %d not found", headerID))
+			returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
 			return
 		}
 	}
@@ -60,6 +62,22 @@ func HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request) {
 	tmplVars.TitleText = fmt.Sprintf("Add Link for %s", tmplVars.Header.Title)
 	tmplVars.FormButtonSubmitColor = "success"
 	tmplVars.FormButtonSubmitText = "Add"
+
+
+	// breadcrumbs
+	tmplVars.Breadcrumbs = &[]templateBreadcrumb{
+		{
+			HRef: "/app/accordion",
+			Text: "Accordion",
+		},
+		{
+			HRef: fmt.Sprintf("/app/accordion/%d", tmplVars.Header.ID),
+			Text: tmplVars.Header.Title,
+		},
+		{
+			Text: tmplVars.TitleText,
+		},
+	}
 
 	err = templates.ExecuteTemplate(w, "accordion_link_form", tmplVars)
 	if err != nil {
@@ -86,7 +104,11 @@ func HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Request) {
 	al := models.AccordionLink{
 		Title: r.Form.Get("title"),
 		Link: r.Form.Get("link"),
-		AccordionHeaderID: headerID,
+	}
+	if headerID == 0 {
+		al.AccordionHeaderID = sql.NullInt32{Valid: false}
+	} else {
+		al.AccordionHeaderID = sql.NullInt32{Valid: true, Int32: int32(headerID)}
 	}
 
 	err = models.CreateAccordionLink(&al)
