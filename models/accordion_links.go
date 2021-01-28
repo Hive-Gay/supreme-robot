@@ -32,8 +32,7 @@ func ReadAccordionLinks(headerID sql.NullInt32) ([]*AccordionLink, error) {
 	if headerID.Valid {
 		err = client.
 			Select(&als, `SELECT id, accordion_header_id, title, link, created_at, updated_at 
-			FROM accordion_links WHERE accordion_header_id = $1 ORDER BY title;`, headerID)
-
+			FROM accordion_links WHERE accordion_header_id = $1 ORDER BY title;`, headerID.Int32)
 	} else {
 		err = client.
 			Select(&als, `SELECT id, accordion_header_id, title, link, created_at, updated_at 
