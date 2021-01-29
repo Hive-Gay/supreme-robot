@@ -39,6 +39,9 @@ func DeleteAccordionHeader(id int) error {
 	err := client.
 		QueryRowx(`DELETE FROM accordion_headers WHERE id = $1;`, id).
 		Scan()
+	if err == sql.ErrNoRows {
+		return nil
+	}
 
 	return err
 }
@@ -70,4 +73,14 @@ func ReadAccordionHeaders() ([]*AccordionHeader, error) {
 	}
 
 	return ahs, nil
+}
+
+func UpdateAccordionHeaders(a *AccordionHeader) error {
+	err := client.
+		QueryRowx(`UPDATE public.accordion_headers
+		SET title=$1, updated_at=CURRENT_TIMESTAMP
+		WHERE id=$2 RETURNING updated_at;`, a.Title, a.ID).
+		Scan(&a.UpdatedAt)
+
+	return err
 }

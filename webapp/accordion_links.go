@@ -59,6 +59,7 @@ func HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Configure Form
 	tmplVars.TitleText = fmt.Sprintf("Add Link for %s", tmplVars.Header.Title)
 	tmplVars.FormButtonSubmitColor = "success"
 	tmplVars.FormButtonSubmitText = "Add"
@@ -146,12 +147,17 @@ func HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	headerIDSQL := sql.NullInt32{Valid: false}
+
 	if headerID == 0 {
 		tmplVars.Header = &models.AccordionHeader{
 			ID:    0,
 			Title: "The Hive",
 		}
 	} else {
+		headerIDSQL.Valid = true
+		headerIDSQL.Int32 = int32(headerID)
+
 		tmplVars.Header, err = models.ReadAccordionHeader(headerID)
 		if err != nil {
 			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
@@ -164,6 +170,25 @@ func HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get Link
+	linkID, err := strconv.Atoi(vars["link"])
+	if err != nil {
+		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	link, err := models.ReadAccordionLink(headerIDSQL, linkID)
+	if err != nil {
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if link == nil {
+		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("link not found: %d", headerID))
+		return
+	}
+
+	// Configure Form
+	tmplVars.FormInputTitleValue = link.Title
+	tmplVars.FormInputLinkValue = link.Link
 
 	tmplVars.TitleText = fmt.Sprintf("Edit Link for %s", tmplVars.Header.Title)
 	tmplVars.FormButtonSubmitColor = "warning"
@@ -188,4 +213,77 @@ func HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Errorf("could not render template: %s", err.Error())
 	}
+}
+
+func HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	// Get header
+	headerID, err := strconv.Atoi(vars["header"])
+	if err != nil {
+		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	headerIDSQL := sql.NullInt32{Valid: false}
+
+	if headerID != 0 {
+		headerIDSQL.Valid = true
+		headerIDSQL.Int32 = int32(headerID)
+
+		header, err := models.ReadAccordionHeader(headerID)
+		if err != nil {
+			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+			return
+		}
+		if header == nil {
+			returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+			return
+		}
+	}
+
+	// Get Link
+	linkID, err := strconv.Atoi(vars["link"])
+	if err != nil {
+		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	link, err := models.ReadAccordionLink(headerIDSQL, linkID)
+	if err != nil {
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if link == nil {
+		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("link not found: %d", headerID))
+		return
+	}
+
+	// parse form data
+	err = r.ParseForm()
+	if err != nil {
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	link.Title = r.Form.Get("title")
+	link.Link = r.Form.Get("link")
+
+	err = models.UpdateAccordionLink(link)
+	if err != nil {
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	us := r.Context().Value(SessionKey).(*sessions.Session)
+	us.Values["page-alert-success"] = templateAlert{Text: "Link updated"}
+	err = us.Save(r, w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// redirect
+	http.Redirect(w, r, fmt.Sprintf("/app/accordion/%d", headerID), http.StatusFound)
+
 }

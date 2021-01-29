@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>The Hive</title>
 
-    <link href="/static/vendor/hive-bootstrap.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="/static/css/hive-bootstrap.css" rel="stylesheet" crossorigin="anonymous">
     <link href="/static/css/accordion.css" rel="stylesheet" crossorigin="anonymous">
 
 </head>
@@ -16,7 +16,7 @@
         <img src="/static/img/hivelogo_160.png" class="logo mb-2"/>
         <h1 class="mb-5">The Hive Directory</h1>
         <div class="accordion" id="accordionExample">
-{{range $index, $header := .Accordion}}
+{{- range $index, $header := .Accordion}}
             <div class="accordion-item">
                 <h2 class="accordion-header" id="heading{{$index}}">
                     <button class="accordion-button{{if ne $index 0}} collapsed{{end}}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{$index}}" aria-expanded="{{if eq $index 0}}true{{else}}false{{end}}" aria-controls="collapse{{$index}}">
@@ -33,7 +33,7 @@
                     </div>
                 </div>
             </div>
-{{end}}
+{{- end}}
         </div>
     </main>
 

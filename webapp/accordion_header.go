@@ -38,6 +38,7 @@ func HandleAccordionHeaderAddGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Configure Form
 	tmplVars.TitleText = "Add Header"
 	tmplVars.FormButtonSubmitColor = "success"
 	tmplVars.FormButtonSubmitText = "Add"
@@ -116,6 +117,7 @@ func HandleAccordionHeaderDeleteGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Configure Form
 	tmplVars.FormInputTitleValue = header.Title
 	tmplVars.FormInputTitleDisabled = true
 
@@ -149,6 +151,16 @@ func HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	header, err := models.ReadAccordionHeader(headerID)
+	if err != nil {
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if header == nil {
+		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+		return
+	}
+
 	err = models.DeleteAccordionHeader(headerID)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
@@ -163,10 +175,10 @@ func HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// redirect home
+	// redirect
 	http.Redirect(w, r, "/app/accordion", http.StatusFound)
-
 }
+
 func HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
@@ -177,7 +189,6 @@ func HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 
 	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
@@ -195,6 +206,7 @@ func HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Configure Form
 	tmplVars.FormInputTitleValue = header.Title
 
 	tmplVars.TitleText = "Edit Header"
@@ -216,6 +228,52 @@ func HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Errorf("could not render template: %s", err.Error())
 	}
+}
+
+func HandleAccordionHeaderEditPost(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	headerID, err := strconv.Atoi(vars["header"])
+	if err != nil {
+		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	header, err := models.ReadAccordionHeader(headerID)
+	if err != nil {
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if header == nil {
+		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+		return
+	}
+
+	// parse form data
+	err = r.ParseForm()
+	if err != nil {
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	header.Title =  r.Form.Get("title")
+
+	err = models.UpdateAccordionHeaders(header)
+	if err != nil {
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	us := r.Context().Value(SessionKey).(*sessions.Session)
+	us.Values["page-alert-success"] = templateAlert{Text: "Header updated"}
+	err = us.Save(r, w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// redirect
+	http.Redirect(w, r, "/app/accordion", http.StatusFound)
 }
 
 func HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request) {

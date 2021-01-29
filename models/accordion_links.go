@@ -44,3 +44,39 @@ func ReadAccordionLinks(headerID sql.NullInt32) ([]*AccordionLink, error) {
 
 	return als, nil
 }
+
+
+func ReadAccordionLink(headerID sql.NullInt32, linkID int) (*AccordionLink, error) {
+	var link AccordionLink
+
+	var err error
+	if headerID.Valid {
+		logger.Tracef("getting header %d link %d", headerID.Int32, linkID)
+		err = client.
+			Get(&link, `SELECT id, accordion_header_id, title, link, created_at, updated_at 
+			FROM accordion_links WHERE id = $1 AND accordion_header_id = $2;`, linkID, headerID.Int32)
+	} else {
+		logger.Tracef("getting header NULL link %d", linkID)
+		err = client.
+			Get(&link, `SELECT id, accordion_header_id, title, link, created_at, updated_at 
+			FROM accordion_links WHERE id = $1 AND accordion_header_id is NULL;`, linkID)
+	}
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	return &link, nil
+}
+
+func UpdateAccordionLink(a *AccordionLink) error {
+	err := client.
+		QueryRowx(`UPDATE public.accordion_links
+		SET title=$1, link=$2, updated_at=CURRENT_TIMESTAMP
+		WHERE id=$3 RETURNING updated_at;`, a.Title, a.Link, a.ID).
+		Scan(&a.UpdatedAt)
+
+	return err
+}
