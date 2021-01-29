@@ -138,12 +138,12 @@ func Init(rp *redis.Pool) error {
 	protected.HandleFunc("/accordion", HandleAccordionDashGet).Methods("GET")
 	protected.HandleFunc("/accordion/add", HandleAccordionHeaderAddGet).Methods("GET")
 	protected.HandleFunc("/accordion/add", HandleAccordionHeaderAddPost).Methods("POST")
-	protected.HandleFunc("/accordion/{id}", HandleAccordionHeaderGet).Methods("GET")
-	protected.HandleFunc("/accordion/{id}/add", HandleAccordionLinkAddGet).Methods("GET")
-	protected.HandleFunc("/accordion/{id}/add", HandleAccordionLinkAddPost).Methods("POST")
-	protected.HandleFunc("/accordion/{id}/delete", HandleAccordionHeaderDeleteGet).Methods("GET")
-	protected.HandleFunc("/accordion/{id}/delete", HandleAccordionHeaderDeletePost).Methods("POST")
-	protected.HandleFunc("/accordion/{id}/edit", HandleAccordionHeaderEditGet).Methods("GET")
+	protected.HandleFunc("/accordion/{header:[0-9]+}", HandleAccordionHeaderGet).Methods("GET")
+	protected.HandleFunc("/accordion/{header:[0-9]+}/add", HandleAccordionLinkAddGet).Methods("GET")
+	protected.HandleFunc("/accordion/{header:[0-9]+}/add", HandleAccordionLinkAddPost).Methods("POST")
+	protected.HandleFunc("/accordion/{header:[0-9]+}/delete", HandleAccordionHeaderDeleteGet).Methods("GET")
+	protected.HandleFunc("/accordion/{header:[0-9]+}/delete", HandleAccordionHeaderDeletePost).Methods("POST")
+	protected.HandleFunc("/accordion/{header:[0-9]+}/edit", HandleAccordionHeaderEditGet).Methods("GET")
 
 	logger.Debugf("starting webapp server")
 	go func() {

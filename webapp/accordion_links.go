@@ -36,7 +36,7 @@ func HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	headerID, err := strconv.Atoi(vars["id"])
+	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
 		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
@@ -63,7 +63,6 @@ func HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request) {
 	tmplVars.FormButtonSubmitColor = "success"
 	tmplVars.FormButtonSubmitText = "Add"
 
-
 	// breadcrumbs
 	tmplVars.Breadcrumbs = &[]templateBreadcrumb{
 		{
@@ -88,7 +87,7 @@ func HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request) {
 func HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	headerID, err := strconv.Atoi(vars["id"])
+	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
 		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
@@ -127,4 +126,66 @@ func HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Request) {
 
 	// redirect home
 	http.Redirect(w, r, fmt.Sprintf("/app/accordion/%d", headerID), http.StatusFound)
+}
+
+func HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	// Init template variables
+	tmplVars := &AccordionLinkFormTemplate{}
+	err := initTemplate(w, r, tmplVars)
+	if err != nil {
+		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// Get header
+	headerID, err := strconv.Atoi(vars["header"])
+	if err != nil {
+		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if headerID == 0 {
+		tmplVars.Header = &models.AccordionHeader{
+			ID:    0,
+			Title: "The Hive",
+		}
+	} else {
+		tmplVars.Header, err = models.ReadAccordionHeader(headerID)
+		if err != nil {
+			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+			return
+		}
+		if tmplVars.Header == nil {
+			returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+			return
+		}
+	}
+
+	// Get Link
+
+	tmplVars.TitleText = fmt.Sprintf("Edit Link for %s", tmplVars.Header.Title)
+	tmplVars.FormButtonSubmitColor = "warning"
+	tmplVars.FormButtonSubmitText = "Update"
+
+	// breadcrumbs
+	tmplVars.Breadcrumbs = &[]templateBreadcrumb{
+		{
+			HRef: "/app/accordion",
+			Text: "Accordion",
+		},
+		{
+			HRef: fmt.Sprintf("/app/accordion/%d", tmplVars.Header.ID),
+			Text: tmplVars.Header.Title,
+		},
+		{
+			Text: tmplVars.TitleText,
+		},
+	}
+
+	err = templates.ExecuteTemplate(w, "accordion_link_form", tmplVars)
+	if err != nil {
+		logger.Errorf("could not render template: %s", err.Error())
+	}
 }

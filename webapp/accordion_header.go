@@ -100,7 +100,7 @@ func HandleAccordionHeaderDeleteGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	headerID, err := strconv.Atoi(vars["id"])
+	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
 		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
@@ -143,7 +143,7 @@ func HandleAccordionHeaderDeleteGet(w http.ResponseWriter, r *http.Request) {
 func HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	headerID, err := strconv.Atoi(vars["id"])
+	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
 		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
@@ -178,7 +178,8 @@ func HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	headerID, err := strconv.Atoi(vars["id"])
+
+	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
 		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
@@ -228,7 +229,7 @@ func HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	headerID, err := strconv.Atoi(vars["id"])
+	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
 		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
