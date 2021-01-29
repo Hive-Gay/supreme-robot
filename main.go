@@ -2,6 +2,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/Hive-Gay/supreme-robot/models"
 	"github.com/Hive-Gay/supreme-robot/webapp"
@@ -55,20 +56,23 @@ func main() {
 			}
 
 			logger.Infof("Starting Supreme Robot")
-			redisPool := initRedisPool()
+			redisPool, err := initRedisPool()
+			if err != nil {
+				logger.Errorf("could not start redis: %s", err.Error())
+				return
+			}
 
-		err = models.Init()
-		if err != nil {
-			logger.Errorf("could not start models: %s", err.Error())
-			return
-		}
+			err = models.Init()
+			if err != nil {
+				logger.Errorf("could not start models: %s", err.Error())
+				return
+			}
 
 			err = webapp.Init(redisPool)
 			if err != nil {
 				logger.Errorf("could not start webapp: %s", err.Error())
 				return
 			}
-
 
 			// Wait for SIGINT and SIGTERM (HIT CTRL-C)
 			nch := make(chan os.Signal)
@@ -81,15 +85,21 @@ func main() {
 
 }
 
-func initRedisPool() *redis.Pool {
+func initRedisPool() (*redis.Pool, error) {
 	logger.Debugf("starting redis pool")
+
+	// DB_ENGINE
+	RedisAddress := os.Getenv("REDIS_ADDRESS")
+	if RedisAddress == "" {
+		return nil, errors.New("missing env var REDIS_ADDRESS")
+	}
 
 	return &redis.Pool{
 		MaxActive: 10,
 		MaxIdle:   10,
 		Wait:      true,
 		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", ":6379")
+			return redis.Dial("tcp", RedisAddress)
 		},
-	}
+	}, nil
 }
