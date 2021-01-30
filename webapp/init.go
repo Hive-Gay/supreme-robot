@@ -145,6 +145,8 @@ func Init(rp *redis.Pool) error {
 	protected.HandleFunc("/accordion/{header:[0-9]+}/delete", HandleAccordionHeaderDeletePost).Methods("POST")
 	protected.HandleFunc("/accordion/{header:[0-9]+}/edit", HandleAccordionHeaderEditGet).Methods("GET")
 	protected.HandleFunc("/accordion/{header:[0-9]+}/edit", HandleAccordionHeaderEditPost).Methods("POST")
+	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/delete", HandleAccordionLinkDeleteGet).Methods("GET")
+	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/delete", HandleAccordionLinkDeletePost).Methods("POST")
 	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/edit", HandleAccordionLinkEditGet).Methods("GET")
 	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/edit", HandleAccordionLinkEditPost).Methods("POST")
 

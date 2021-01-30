@@ -25,6 +25,17 @@ func CreateAccordionLink(a *AccordionLink) error {
 	return err
 }
 
+func DeleteAccordionLink(id int) error {
+	err := client.
+		QueryRowx(`DELETE FROM accordion_links WHERE id = $1;`, id).
+		Scan()
+	if err == sql.ErrNoRows {
+		return nil
+	}
+
+	return err
+}
+
 func ReadAccordionLinks(headerID sql.NullInt32) ([]*AccordionLink, error) {
 	var als []*AccordionLink
 
