@@ -2,7 +2,7 @@ package webapp
 
 var HeadFrameworkCSSTemplate = []templateHeadLink{
 	{
-		HRef: "/static/css/hive-bootstrap.css",
+		HRef: "https://cdn.hive.gay/hive-bootstrap-develop.css",
 		Rel: "stylesheet",
 		CrossOrigin: "anonymous",
 	},
