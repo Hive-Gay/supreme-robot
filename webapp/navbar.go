@@ -1,11 +1,14 @@
 package webapp
 
 import (
+	"github.com/Hive-Gay/supreme-robot/models"
+	"github.com/Hive-Gay/supreme-robot/util"
 	"net/http"
 	"regexp"
 )
 
 func makeNavbar(r *http.Request) (navbar *[]templateNavbarNode) {
+
 	// create navbar
 	newNavbar := []templateNavbarNode{
 		{
@@ -20,6 +23,33 @@ func makeNavbar(r *http.Request) (navbar *[]templateNavbarNode) {
 			FAIcon:   "list-alt",
 			URL:      "/app/accordion",
 		},
+	}
+
+	// Show Admin Menu
+	if r.Context().Value(UserKey) != nil {
+		user := r.Context().Value(UserKey).(*models.User)
+
+		if util.ContainsOneOfStrings(user.Groups, adminGroups) {
+
+			adminMenu := templateNavbarNode{
+				Text: "Admin",
+				MatchStr: "^/app/admin",
+				FAIcon:   "hammer",
+				URL:    "#",
+			}
+
+			if util.ContainsString(user.Groups, groupMailAdmin) {
+				adminMenu.Children = append(adminMenu.Children, &templateNavbarNode{
+					Text: "Mail Server",
+					MatchStr: "^/app/admin/mail",
+					FAIcon:   "mail-bulk",
+					URL:    "/app/admin/mail",
+				})
+			}
+
+
+			newNavbar = append(newNavbar, adminMenu)
+		}
 	}
 
 	for i := 0; i < len(newNavbar); i++ {

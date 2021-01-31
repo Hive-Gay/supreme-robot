@@ -61,7 +61,7 @@
           <a class="nav-link dropdown-toggle{{if .Active}} active{{end}}{{if .Disabled}} disabled{{end}}" href="{{.URL}}" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               {{if .FAIcon}}<i class="fas fa-{{.FAIcon}}"></i> {{end}}{{.Text}}
           </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
 
         {{- range .Children}}
             <li class="nav-item">

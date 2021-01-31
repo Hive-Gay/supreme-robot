@@ -3,6 +3,7 @@ package webapp
 import (
 	"context"
 	"github.com/Hive-Gay/supreme-robot/models"
+	"github.com/Hive-Gay/supreme-robot/util"
 	"github.com/gorilla/sessions"
 	"net/http"
 	"time"
@@ -111,13 +112,7 @@ func MiddlewareRequireAuth(next http.Handler) http.Handler {
 		}
 
 		// Check for UWU Crew group
-		UWUCrew := false
-		for _, group := range user.Groups {
-			if group == "/UWU Crew" {
-				UWUCrew = true
-				break
-			}
-		}
+		UWUCrew := util.ContainsString(user.Groups, "/UWU Crew")
 		if !UWUCrew {
 			returnErrorPage(w, r, http.StatusUnauthorized, "Ask Tyr to join the UWU Crew")
 			return

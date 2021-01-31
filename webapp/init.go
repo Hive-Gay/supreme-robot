@@ -25,6 +25,12 @@ type contextKey int
 const SessionKey contextKey = 0
 const UserKey contextKey = 1
 
+const groupMailAdmin = "/Mail Admin"
+
+var adminGroups = []string{
+	groupMailAdmin,
+}
+
 var (
 	ctx            context.Context
 	logger         *loggo.Logger
@@ -135,6 +141,8 @@ func Init(rp *redis.Pool) error {
 	protected := r.PathPrefix("/app/").Subrouter()
 	protected.Use(MiddlewareRequireAuth)
 	protected.HandleFunc("/", GetHome).Methods("GET")
+
+	// Accordion Dashboard
 	protected.HandleFunc("/accordion", HandleAccordionDashGet).Methods("GET")
 	protected.HandleFunc("/accordion/add", HandleAccordionHeaderAddGet).Methods("GET")
 	protected.HandleFunc("/accordion/add", HandleAccordionHeaderAddPost).Methods("POST")
@@ -149,6 +157,8 @@ func Init(rp *redis.Pool) error {
 	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/delete", HandleAccordionLinkDeletePost).Methods("POST")
 	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/edit", HandleAccordionLinkEditGet).Methods("GET")
 	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/edit", HandleAccordionLinkEditPost).Methods("POST")
+
+
 
 	logger.Debugf("starting webapp server")
 	go func() {

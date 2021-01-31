@@ -4,6 +4,7 @@ RUN go get github.com/markbates/pkger/cmd/pkger
 RUN mkdir /app
 ADD . /app/
 WORKDIR /app
+RUN go test -v ./...
 RUN pkger && \
     CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o supreme_robot
 
