@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"errors"
 	"github.com/Hive-Gay/supreme-robot/models"
+	"github.com/Hive-Gay/supreme-robot/util"
 	"github.com/coreos/go-oidc"
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/mux"
@@ -25,6 +26,7 @@ type contextKey int
 const SessionKey contextKey = 0
 const UserKey contextKey = 1
 
+const groupUWUCrew = "/UWU Crew"
 const groupMailAdmin = "/Mail Admin"
 
 var adminGroups = []string{
@@ -158,7 +160,8 @@ func Init(rp *redis.Pool) error {
 	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/edit", HandleAccordionLinkEditGet).Methods("GET")
 	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/edit", HandleAccordionLinkEditPost).Methods("POST")
 
-
+	// Mail Dashboard
+	protected.HandleFunc("/admin/mail", HandleMailDashGet).Methods("GET")
 
 	logger.Debugf("starting webapp server")
 	go func() {
@@ -175,4 +178,14 @@ func Init(rp *redis.Pool) error {
 	}()
 
 	return nil
+}
+
+func userAuthed(r *http.Request, role string) bool {
+	if r.Context().Value(UserKey) != nil {
+		user := r.Context().Value(UserKey).(*models.User)
+		if util.ContainsString(user.Groups, role) {
+			return true
+		}
+	}
+	return false
 }

@@ -61,7 +61,7 @@ func Middleware(next http.Handler) http.Handler {
 
 		// Log It
 		duration := time.Since(start)
-		logger.Debugf("%s - %s [%s] \"%s %s %s\" %d %d \"%s\" \"%s\" rt=%d",
+		logger.Infof("%s - %s [%s] \"%s %s %s\" %d %d \"%s\" \"%s\" rt=%d",
 			r.RemoteAddr,
 			"-",
 			start.Format(layoutCombined),
@@ -112,7 +112,7 @@ func MiddlewareRequireAuth(next http.Handler) http.Handler {
 		}
 
 		// Check for UWU Crew group
-		UWUCrew := util.ContainsString(user.Groups, "/UWU Crew")
+		UWUCrew := util.ContainsString(user.Groups, groupUWUCrew)
 		if !UWUCrew {
 			returnErrorPage(w, r, http.StatusUnauthorized, "Ask Tyr to join the UWU Crew")
 			return

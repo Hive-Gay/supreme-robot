@@ -66,9 +66,6 @@ func returnErrorPage(w http.ResponseWriter, r *http.Request, code int, errStr st
 		tmplVars.BotImage = BotEmojiOffline
 	}
 
-	// i18n
-
-
 	// set text
 	tmplVars.Header = fmt.Sprintf("%d", code)
 	tmplVars.SubHeader = http.StatusText(code)
