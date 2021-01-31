@@ -7,7 +7,7 @@ var HeadFrameworkCSSTemplate = []templateHeadLink{
 		CrossOrigin: "anonymous",
 	},
 	{
-		HRef: "/static/vendor/fontawesome-free-5.15.1-web/css/all.min.css",
+		HRef: "https://cdn.hive.gay/vendor/fontawesome-free-5.15.1-web/css/all.min.css",
 		Rel: "stylesheet",
 		CrossOrigin: "anonymous",
 	},
