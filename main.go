@@ -8,11 +8,11 @@ import (
 	"github.com/Hive-Gay/supreme-robot/models"
 	"github.com/Hive-Gay/supreme-robot/twilio"
 	"github.com/Hive-Gay/supreme-robot/webapp"
-	"github.com/garyburd/redigo/redis"
 	"github.com/juju/loggo"
 	"github.com/juju/loggo/loggocolor"
 	"github.com/thatisuday/commando"
 	"os"
+	"os/signal"
 	"strings"
 )
 
@@ -42,7 +42,7 @@ func main() {
 
 	commando.
 		Register("server").
-		SetShortDescription("runs the supreme robot server").
+		SetShortDescription("runs the supreme robot web server").
 		AddFlag("log,l", "level of logging", commando.String, "info").
 		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
 			logLevel, _ := flags["log"].GetString()
@@ -53,12 +53,12 @@ func main() {
 				return
 			}
 
-			logger.Infof("Starting Supreme Robot")
+			logger.Infof("Starting Supreme Robot web app")
 
-			// Redis
-			redisPool, err := initRedisPool()
-			if err != nil {
-				logger.Errorf("could not start redis: %s", err.Error())
+			// REDIS_ADDRESS
+			redisAddress := os.Getenv("REDIS_ADDRESS")
+			if redisAddress == "" {
+				logger.Errorf("missing env var REDIS_ADDRESS")
 				return
 			}
 
@@ -70,10 +70,10 @@ func main() {
 			}
 
 			// Job Queue
-			enqueuer := jobs.NewEnqueuer(JobNamespace, redisPool)
+			enqueuer := jobs.NewEnqueuer(JobNamespace, redisAddress)
 
 			// Webapp
-			webServer, err := webapp.NewServer(redisPool, modelClient, enqueuer)
+			webServer, err := webapp.NewServer(redisAddress, modelClient, enqueuer)
 			if err != nil {
 				logger.Errorf("could not start webapp: %s", err.Error())
 				return
@@ -86,27 +86,53 @@ func main() {
 
 		})
 
+	commando.
+		Register("worker").
+		SetShortDescription("runs the supreme robot worker").
+		AddFlag("log,l", "level of logging", commando.String, "info").
+		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
+			logLevel, _ := flags["log"].GetString()
+
+			err := loggo.ConfigureLoggers(fmt.Sprintf("<root>=%s", strings.ToUpper(logLevel)))
+			if err != nil {
+				logger.Errorf("could not configure logger: %s", err.Error())
+				return
+			}
+
+			logger.Infof("Starting Supreme Robot Worker")
+
+			// REDIS_ADDRESS
+			redisAddress := os.Getenv("REDIS_ADDRESS")
+			if redisAddress == "" {
+				logger.Errorf("missing env var REDIS_ADDRESS")
+				return
+			}
+
+			// Database
+			modelsClient, err := initModels(false)
+			if err != nil {
+				logger.Errorf("could not start redis: %s", err.Error())
+				return
+			}
+
+			// Job Queue
+			worker := jobs.NewWorker(JobNamespace, redisAddress, modelsClient)
+
+			// Start processing jobs
+			worker.Start()
+
+			// Wait for a signal to quit:
+			signalChan := make(chan os.Signal, 1)
+			signal.Notify(signalChan, os.Interrupt, os.Kill)
+			<-signalChan
+
+			// Stop the pool
+			worker.Stop()
+
+		})
+
 	commando.Parse(nil)
 
-}
-
-func initRedisPool() (*redis.Pool, error) {
-	logger.Debugf("starting redis pool")
-
-	// DB_ENGINE
-	RedisAddress := os.Getenv("REDIS_ADDRESS")
-	if RedisAddress == "" {
-		return nil, errors.New("missing env var REDIS_ADDRESS")
-	}
-
-	return &redis.Pool{
-		MaxActive: 10,
-		MaxIdle:   10,
-		Wait:      true,
-		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", RedisAddress)
-		},
-	}, nil
 }
 
 func initTwilio() (*twilio.Client, error) {

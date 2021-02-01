@@ -5,6 +5,8 @@ go 1.15
 require (
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/garyburd/redigo v1.6.2
+	github.com/gocraft/work v0.5.1
+	github.com/gomodule/redigo v1.8.3
 	github.com/google/uuid v1.0.0
 	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/sessions v1.1.1
@@ -17,6 +19,7 @@ require (
 	github.com/markbates/pkger v0.17.1
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/pquerna/cachecontrol v0.0.0-20201205024021-ac21108117ac // indirect
+	github.com/robfig/cron v1.2.0 // indirect
 	github.com/rubenv/sql-migrate v0.0.0-20200616145509-8d140a17f351
 	github.com/thatisuday/commando v1.0.4
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect

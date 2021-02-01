@@ -32,7 +32,7 @@ type Server struct {
 	templates      *template.Template
 }
 
-func NewServer(rp *redis.Pool, mc *models.Client, e *jobs.Enqueuer) (*Server, error){
+func NewServer(redisAddress string, mc *models.Client, e *jobs.Enqueuer) (*Server, error){
 	server := Server{
 		modelClient: mc,
 		enqueuer: e,
@@ -52,7 +52,14 @@ func NewServer(rp *redis.Pool, mc *models.Client, e *jobs.Enqueuer) (*Server, er
 		return nil, errors.New("missing env var SECRET")
 	}
 
-	server.store, err = redistore.NewRediStoreWithPool(rp, []byte(Secret))
+	server.store, err = redistore.NewRediStoreWithPool(&redis.Pool{
+		MaxActive: 5,
+		MaxIdle:   5,
+		Wait:      true,
+		Dial: func() (redis.Conn, error) {
+			return redis.Dial("tcp", redisAddress)
+		},
+	}, []byte(Secret))
 	if err != nil {
 		return nil, err
 	}

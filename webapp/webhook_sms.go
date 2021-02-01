@@ -38,16 +38,14 @@ func (s *Server)HandleWebhookSMSPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Loop over header names
-	for name, values := range r.Header {
-		// Loop over all values for the name.
-		for _, value := range values {
-			fmt.Println(name, value)
-		}
-	}
-
 	// Write
 	_ = fmt.Sprintf("https://%s%s", s.apphostname, r.URL.String())
+
+	err = s.enqueuer.ReceivedSMS(69)
+	if err != nil {
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	w.WriteHeader(http.StatusAccepted)
 }
