@@ -8,9 +8,9 @@ type MailDashTemplate struct {
 	templateCommon
 }
 
-func HandleMailDashGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleMailDashGet(w http.ResponseWriter, r *http.Request) {
 	if !userAuthed(r, groupMailAdmin) {
-		returnErrorPage(w, r, http.StatusForbidden, "")
+		s.returnErrorPage(w, r, http.StatusForbidden, "")
 		return
 	}
 
@@ -18,11 +18,11 @@ func HandleMailDashGet(w http.ResponseWriter, r *http.Request) {
 	tmplVars := &MailDashTemplate{}
 	err := initTemplate(w, r, tmplVars)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	err = templates.ExecuteTemplate(w, "mail_dashboard", tmplVars)
+	err = s.templates.ExecuteTemplate(w, "mail_dashboard", tmplVars)
 	if err != nil {
 		logger.Errorf("could not render template: %s", err.Error())
 	}

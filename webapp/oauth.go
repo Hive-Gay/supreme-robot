@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func HandleOauthCallback(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleOauthCallback(w http.ResponseWriter, r *http.Request) {
 	// Init Session
 	us := r.Context().Value(SessionKey).(*sessions.Session)
 
@@ -34,7 +34,7 @@ func HandleOauthCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// process returned oauth data
-	user, err := processCallback(r)
+	user, err := s.processCallback(r)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -74,8 +74,8 @@ func HandleOauthCallback(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func processCallback(r *http.Request) (*models.User, error) {
-	oauth2Token, err := oauth2Config.Exchange(ctx, r.URL.Query().Get("code"))
+func (s *Server)processCallback(r *http.Request) (*models.User, error) {
+	oauth2Token, err := s.oauth2Config.Exchange(s.ctx, r.URL.Query().Get("code"))
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func processCallback(r *http.Request) (*models.User, error) {
 	if !ok {
 		return nil, err
 	}
-	idToken, err := oauth2Verifier.Verify(ctx, rawIDToken)
+	idToken, err := s.oauth2Verifier.Verify(s.ctx, rawIDToken)
 	if err != nil {
 		return nil, err
 	}

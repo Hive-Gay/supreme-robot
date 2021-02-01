@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func HandleLogin(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleLogin(w http.ResponseWriter, r *http.Request) {
 	// Init Session
 	us := r.Context().Value(SessionKey).(*sessions.Session)
 
@@ -15,9 +15,9 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	err := us.Save(r, w)
 	if err != nil {
 		logger.Warningf("Could not save session: %s", err.Error())
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	http.Redirect(w, r, oauth2Config.AuthCodeURL(newState), http.StatusFound)
+	http.Redirect(w, r, s.oauth2Config.AuthCodeURL(newState), http.StatusFound)
 }

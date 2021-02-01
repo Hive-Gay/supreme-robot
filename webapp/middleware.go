@@ -29,7 +29,7 @@ func (r *ResponseWriterX) WriteHeader(status int) {
 	return
 }
 
-func Middleware(next http.Handler) http.Handler {
+func (s *Server)Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -40,7 +40,7 @@ func Middleware(next http.Handler) http.Handler {
 		}
 
 		// Init Session
-		us, err := store.Get(r, "supreme-robot")
+		us, err := s.store.Get(r, "supreme-robot")
 		if err != nil {
 			logger.Infof("got %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -77,7 +77,7 @@ func Middleware(next http.Handler) http.Handler {
 	})
 }
 
-func MiddlewareRequireAuth(next http.Handler) http.Handler {
+func (s *Server)MiddlewareRequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		us := r.Context().Value(SessionKey).(*sessions.Session)
 
@@ -86,7 +86,7 @@ func MiddlewareRequireAuth(next http.Handler) http.Handler {
 			us.Values["login-redirect"] = r.URL.Path
 			err := us.Save(r, w)
 			if err != nil {
-				returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+				s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 				return
 			}
 
@@ -102,7 +102,7 @@ func MiddlewareRequireAuth(next http.Handler) http.Handler {
 			us.Values["login-redirect"] = r.URL.Path
 			err := us.Save(r, w)
 			if err != nil {
-				returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+				s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 				return
 			}
 
@@ -114,7 +114,7 @@ func MiddlewareRequireAuth(next http.Handler) http.Handler {
 		// Check for UWU Crew group
 		UWUCrew := util.ContainsString(user.Groups, groupUWUCrew)
 		if !UWUCrew {
-			returnErrorPage(w, r, http.StatusUnauthorized, "Ask Tyr to join the UWU Crew")
+			s.returnErrorPage(w, r, http.StatusUnauthorized, "Ask Tyr to join the UWU Crew")
 			return
 		}
 

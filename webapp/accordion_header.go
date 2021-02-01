@@ -29,12 +29,12 @@ type AccordionHeaderFormTemplate struct {
 	FormButtonSubmitText   string
 }
 
-func HandleAccordionHeaderAddGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordionHeaderAddGet(w http.ResponseWriter, r *http.Request) {
 	// Init template variables
 	tmplVars := &AccordionHeaderFormTemplate{}
 	err := initTemplate(w, r, tmplVars)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -54,17 +54,17 @@ func HandleAccordionHeaderAddGet(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	err = templates.ExecuteTemplate(w, "accordion_header_form", tmplVars)
+	err = s.templates.ExecuteTemplate(w, "accordion_header_form", tmplVars)
 	if err != nil {
 		logger.Errorf("could not render template: %s", err.Error())
 	}
 }
 
-func HandleAccordionHeaderAddPost(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordionHeaderAddPost(w http.ResponseWriter, r *http.Request) {
 	// parse form data
 	err := r.ParseForm()
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -72,9 +72,9 @@ func HandleAccordionHeaderAddPost(w http.ResponseWriter, r *http.Request) {
 		Title: r.Form.Get("title"),
 	}
 
-	err = modelClient.CreateAccordionHeader(&ah)
+	err = s.modelClient.CreateAccordionHeader(&ah)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -90,30 +90,30 @@ func HandleAccordionHeaderAddPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/app/accordion", http.StatusFound)
 }
 
-func HandleAccordionHeaderDeleteGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordionHeaderDeleteGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
 	tmplVars := &AccordionHeaderFormTemplate{}
 	err := initTemplate(w, r, tmplVars)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	header, err := modelClient.ReadAccordionHeader(headerID)
+	header, err := s.modelClient.ReadAccordionHeader(headerID)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 	if header == nil {
-		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+		s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
 		return
 	}
 
@@ -136,34 +136,34 @@ func HandleAccordionHeaderDeleteGet(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	err = templates.ExecuteTemplate(w, "accordion_header_form", tmplVars)
+	err = s.templates.ExecuteTemplate(w, "accordion_header_form", tmplVars)
 	if err != nil {
 		logger.Errorf("could not render template: %s", err.Error())
 	}
 }
 
-func HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	header, err := modelClient.ReadAccordionHeader(headerID)
+	header, err := s.modelClient.ReadAccordionHeader(headerID)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 	if header == nil {
-		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+		s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
 		return
 	}
 
-	err = modelClient.DeleteAccordionHeader(headerID)
+	err = s.modelClient.DeleteAccordionHeader(headerID)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -179,30 +179,30 @@ func HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/app/accordion", http.StatusFound)
 }
 
-func HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
 	tmplVars := &AccordionHeaderFormTemplate{}
 	err := initTemplate(w, r, tmplVars)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	header, err := modelClient.ReadAccordionHeader(headerID)
+	header, err := s.modelClient.ReadAccordionHeader(headerID)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 	if header == nil {
-		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+		s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
 		return
 	}
 
@@ -224,43 +224,43 @@ func HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	err = templates.ExecuteTemplate(w, "accordion_header_form", tmplVars)
+	err = s.templates.ExecuteTemplate(w, "accordion_header_form", tmplVars)
 	if err != nil {
 		logger.Errorf("could not render template: %s", err.Error())
 	}
 }
 
-func HandleAccordionHeaderEditPost(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordionHeaderEditPost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	header, err := modelClient.ReadAccordionHeader(headerID)
+	header, err := s.modelClient.ReadAccordionHeader(headerID)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 	if header == nil {
-		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+		s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
 		return
 	}
 
 	// parse form data
 	err = r.ParseForm()
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	header.Title =  r.Form.Get("title")
 
-	err = modelClient.UpdateAccordionHeaders(header)
+	err = s.modelClient.UpdateAccordionHeaders(header)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -276,20 +276,20 @@ func HandleAccordionHeaderEditPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/app/accordion", http.StatusFound)
 }
 
-func HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
 	tmplVars := &AccordionHeaderTemplate{}
 	err := initTemplate(w, r, tmplVars)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -299,25 +299,25 @@ func HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request) {
 			Title: "The Hive",
 		}
 
-		tmplVars.Links, err = modelClient.ReadAccordionLinks(sql.NullInt32{Valid: false})
+		tmplVars.Links, err = s.modelClient.ReadAccordionLinks(sql.NullInt32{Valid: false})
 		if err != nil {
-			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
 	} else {
-		tmplVars.Header, err = modelClient.ReadAccordionHeader(headerID)
+		tmplVars.Header, err = s.modelClient.ReadAccordionHeader(headerID)
 		if err != nil {
-			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
 		if tmplVars.Header == nil {
-			returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header %d not found", headerID))
+			s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header %d not found", headerID))
 			return
 		}
 
-		tmplVars.Links, err = modelClient.ReadAccordionLinks(sql.NullInt32{Valid: true, Int32: int32(tmplVars.Header.ID)})
+		tmplVars.Links, err = s.modelClient.ReadAccordionLinks(sql.NullInt32{Valid: true, Int32: int32(tmplVars.Header.ID)})
 		if err != nil {
-			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
 	}
@@ -333,7 +333,7 @@ func HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	err = templates.ExecuteTemplate(w, "accordion_header_view", tmplVars)
+	err = s.templates.ExecuteTemplate(w, "accordion_header_view", tmplVars)
 	if err != nil {
 		logger.Errorf("could not render template: %s", err.Error())
 	}

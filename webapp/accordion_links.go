@@ -25,20 +25,20 @@ type AccordionLinkFormTemplate struct {
 	FormButtonSubmitText   string
 }
 
-func HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
 	tmplVars := &AccordionLinkFormTemplate{}
 	err := initTemplate(w, r, tmplVars)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -48,13 +48,13 @@ func HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request) {
 			Title: "The Hive",
 		}
 	} else {
-		tmplVars.Header, err = modelClient.ReadAccordionHeader(headerID)
+		tmplVars.Header, err = s.modelClient.ReadAccordionHeader(headerID)
 		if err != nil {
-			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
 		if tmplVars.Header == nil {
-			returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+			s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
 			return
 		}
 	}
@@ -79,25 +79,25 @@ func HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	err = templates.ExecuteTemplate(w, "accordion_link_form", tmplVars)
+	err = s.templates.ExecuteTemplate(w, "accordion_link_form", tmplVars)
 	if err != nil {
 		logger.Errorf("could not render template: %s", err.Error())
 	}
 }
 
-func HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	// parse form data
 	err = r.ParseForm()
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -111,9 +111,9 @@ func HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Request) {
 		al.AccordionHeaderID = sql.NullInt32{Valid: true, Int32: int32(headerID)}
 	}
 
-	err = modelClient.CreateAccordionLink(&al)
+	err = s.modelClient.CreateAccordionLink(&al)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -129,21 +129,21 @@ func HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/app/accordion/%d", headerID), http.StatusFound)
 }
 
-func HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
 	tmplVars := &AccordionLinkFormTemplate{}
 	err := initTemplate(w, r, tmplVars)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	// Get header
 	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -158,13 +158,13 @@ func HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Request) {
 		headerIDSQL.Valid = true
 		headerIDSQL.Int32 = int32(headerID)
 
-		tmplVars.Header, err = modelClient.ReadAccordionHeader(headerID)
+		tmplVars.Header, err = s.modelClient.ReadAccordionHeader(headerID)
 		if err != nil {
-			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
 		if tmplVars.Header == nil {
-			returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+			s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
 			return
 		}
 	}
@@ -172,17 +172,17 @@ func HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Request) {
 	// Get Link
 	linkID, err := strconv.Atoi(vars["link"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	link, err := modelClient.ReadAccordionLink(headerIDSQL, linkID)
+	link, err := s.modelClient.ReadAccordionLink(headerIDSQL, linkID)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 	if link == nil {
-		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("link not found: %d", headerID))
+		s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("link not found: %d", headerID))
 		return
 	}
 
@@ -211,19 +211,19 @@ func HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	err = templates.ExecuteTemplate(w, "accordion_link_form", tmplVars)
+	err = s.templates.ExecuteTemplate(w, "accordion_link_form", tmplVars)
 	if err != nil {
 		logger.Errorf("could not render template: %s", err.Error())
 	}
 }
 
-func HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Get header
 	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -233,13 +233,13 @@ func HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Request) {
 		headerIDSQL.Valid = true
 		headerIDSQL.Int32 = int32(headerID)
 
-		header, err := modelClient.ReadAccordionHeader(headerID)
+		header, err := s.modelClient.ReadAccordionHeader(headerID)
 		if err != nil {
-			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
 		if header == nil {
-			returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+			s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
 			return
 		}
 	}
@@ -247,24 +247,24 @@ func HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Request) {
 	// Get Link
 	linkID, err := strconv.Atoi(vars["link"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	link, err := modelClient.ReadAccordionLink(headerIDSQL, linkID)
+	link, err := s.modelClient.ReadAccordionLink(headerIDSQL, linkID)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 	if link == nil {
-		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("link not found: %d", headerID))
+		s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("link not found: %d", headerID))
 		return
 	}
 
 	// Delete link
-	err = modelClient.DeleteAccordionLink(linkID)
+	err = s.modelClient.DeleteAccordionLink(linkID)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -281,21 +281,21 @@ func HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
 	tmplVars := &AccordionLinkFormTemplate{}
 	err := initTemplate(w, r, tmplVars)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	// Get header
 	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -310,13 +310,13 @@ func HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Request) {
 		headerIDSQL.Valid = true
 		headerIDSQL.Int32 = int32(headerID)
 
-		tmplVars.Header, err = modelClient.ReadAccordionHeader(headerID)
+		tmplVars.Header, err = s.modelClient.ReadAccordionHeader(headerID)
 		if err != nil {
-			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
 		if tmplVars.Header == nil {
-			returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+			s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
 			return
 		}
 	}
@@ -324,17 +324,17 @@ func HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Request) {
 	// Get Link
 	linkID, err := strconv.Atoi(vars["link"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	link, err := modelClient.ReadAccordionLink(headerIDSQL, linkID)
+	link, err := s.modelClient.ReadAccordionLink(headerIDSQL, linkID)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 	if link == nil {
-		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("link not found: %d", headerID))
+		s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("link not found: %d", headerID))
 		return
 	}
 
@@ -361,19 +361,19 @@ func HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	err = templates.ExecuteTemplate(w, "accordion_link_form", tmplVars)
+	err = s.templates.ExecuteTemplate(w, "accordion_link_form", tmplVars)
 	if err != nil {
 		logger.Errorf("could not render template: %s", err.Error())
 	}
 }
 
-func HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Get header
 	headerID, err := strconv.Atoi(vars["header"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -383,13 +383,13 @@ func HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Request) {
 		headerIDSQL.Valid = true
 		headerIDSQL.Int32 = int32(headerID)
 
-		header, err := modelClient.ReadAccordionHeader(headerID)
+		header, err := s.modelClient.ReadAccordionHeader(headerID)
 		if err != nil {
-			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
 		if header == nil {
-			returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
+			s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("header not found: %d", headerID))
 			return
 		}
 	}
@@ -397,33 +397,33 @@ func HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Request) {
 	// Get Link
 	linkID, err := strconv.Atoi(vars["link"])
 	if err != nil {
-		returnErrorPage(w, r, http.StatusBadRequest, err.Error())
+		s.returnErrorPage(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	link, err := modelClient.ReadAccordionLink(headerIDSQL, linkID)
+	link, err := s.modelClient.ReadAccordionLink(headerIDSQL, linkID)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 	if link == nil {
-		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("link not found: %d", headerID))
+		s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("link not found: %d", headerID))
 		return
 	}
 
 	// parse form data
 	err = r.ParseForm()
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	link.Title = r.Form.Get("title")
 	link.Link = r.Form.Get("link")
 
-	err = modelClient.UpdateAccordionLink(link)
+	err = s.modelClient.UpdateAccordionLink(link)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 

@@ -19,7 +19,8 @@ type AccordionLink struct {
 	Link  string
 }
 
-func HandleAccordion(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordion(w http.ResponseWriter, r *http.Request) {
+	logger.Tracef("Starting HandleAccordion")
 	// Init template variables
 	tmplVars := &AccordionTemplate{}
 
@@ -28,9 +29,9 @@ func HandleAccordion(w http.ResponseWriter, r *http.Request) {
 		Title: "The Hive",
 	}
 
-	hiveLinks, err := modelClient.ReadAccordionLinks(sql.NullInt32{Valid: false})
+	hiveLinks, err := s.modelClient.ReadAccordionLinks(sql.NullInt32{Valid: false})
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 	for _, link := range hiveLinks {
@@ -45,9 +46,9 @@ func HandleAccordion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get other headers
-	mHeaders, err := modelClient.ReadAccordionHeaders()
+	mHeaders, err := s.modelClient.ReadAccordionHeaders()
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -56,9 +57,9 @@ func HandleAccordion(w http.ResponseWriter, r *http.Request) {
 			Title: mHeader.Title,
 		}
 
-		headerLinks, err := modelClient.ReadAccordionLinks(sql.NullInt32{Valid: true, Int32: int32(mHeader.ID)})
+		headerLinks, err := s.modelClient.ReadAccordionLinks(sql.NullInt32{Valid: true, Int32: int32(mHeader.ID)})
 		if err != nil {
-			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
 		for _, link := range headerLinks {
@@ -74,7 +75,7 @@ func HandleAccordion(w http.ResponseWriter, r *http.Request) {
 
 
 
-	err = templates.ExecuteTemplate(w, "accordion", tmplVars)
+	err = s.templates.ExecuteTemplate(w, "accordion", tmplVars)
 	if err != nil {
 		logger.Errorf("could not render template: %s", err.Error())
 	}

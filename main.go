@@ -13,9 +13,7 @@ import (
 	"github.com/juju/loggo/loggocolor"
 	"github.com/thatisuday/commando"
 	"os"
-	"os/signal"
 	"strings"
-	"syscall"
 )
 
 const JobNamespace = "supreme_robot"
@@ -74,16 +72,17 @@ func main() {
 			// Job Queue
 			enqueuer := jobs.NewEnqueuer(JobNamespace, redisPool)
 
-			err = webapp.Init(redisPool, modelClient, enqueuer)
+			// Webapp
+			webServer, err := webapp.NewServer(redisPool, modelClient, enqueuer)
 			if err != nil {
 				logger.Errorf("could not start webapp: %s", err.Error())
 				return
 			}
 
-			// Wait for SIGINT and SIGTERM (HIT CTRL-C)
-			nch := make(chan os.Signal)
-			signal.Notify(nch, syscall.SIGINT, syscall.SIGTERM)
-			logger.Infof("%s", <-nch)
+			err = webServer.Run()
+			if err != nil {
+				logger.Errorf("Could not start webapp server %s", err.Error())
+			}
 
 		})
 
@@ -124,7 +123,6 @@ func initTwilio() (*twilio.Client, error) {
 
 	return twilio.NewClient(twilioAccountSID, twilioAuthToken), nil
 }
-
 
 func initModels(doMigration bool) (*models.Client, error) {
 	// DB_ENGINE

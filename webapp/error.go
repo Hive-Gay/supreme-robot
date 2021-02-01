@@ -21,7 +21,7 @@ const BotEmojiConfused = "/static/img/bot/noun_confused-bot_white.svg"
 const BotEmojiMad = "/static/img/bot/noun_mad-bot_white.svg"
 const BotEmojiOffline = "/static/img/bot/noun_offline-bot_white.svg"
 
-func returnErrorPage(w http.ResponseWriter, r *http.Request, code int, errStr string) {
+func (s *Server)returnErrorPage(w http.ResponseWriter, r *http.Request, code int, errStr string) {
 
 	// Init template variables
 	tmplVars := &ErrorPageTemplate{}
@@ -82,22 +82,22 @@ func returnErrorPage(w http.ResponseWriter, r *http.Request, code int, errStr st
 	}
 
 	w.WriteHeader(code)
-	err = templates.ExecuteTemplate(w, "error", tmplVars)
+	err = s.templates.ExecuteTemplate(w, "error", tmplVars)
 	if err != nil {
 		logger.Errorf("could not render home template: %s", err.Error())
 	}
 }
 
-func MethodNotAllowedHandler() http.Handler {
+func (s *Server)MethodNotAllowedHandler() http.Handler {
 	// wrap in middleware since middlware isn't run on error pages
-	return Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		returnErrorPage(w, r, http.StatusMethodNotAllowed, "")
+	return s.Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		s.returnErrorPage(w, r, http.StatusMethodNotAllowed, "")
 	}))
 }
 
-func NotFoundHandler() http.Handler {
+func (s *Server)NotFoundHandler() http.Handler {
 	// wrap in middleware since middlware isn't run on error pages
-	return Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("page not found: %s", r.URL.Path))
+	return s.Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		s.returnErrorPage(w, r, http.StatusNotFound, fmt.Sprintf("page not found: %s", r.URL.Path))
 	}))
 }

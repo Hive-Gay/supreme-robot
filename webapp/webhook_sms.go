@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func HandleWebhookSMSPost(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleWebhookSMSPost(w http.ResponseWriter, r *http.Request) {
 	// Get Signature from Header
 	signature := ""
 	idempotencyToken := ""
@@ -34,7 +34,7 @@ func HandleWebhookSMSPost(w http.ResponseWriter, r *http.Request) {
 	// parse form data
 	err := r.ParseForm()
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -47,7 +47,7 @@ func HandleWebhookSMSPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Write
-	_ = fmt.Sprintf("https://%s%s", apphostname, r.URL.String())
+	_ = fmt.Sprintf("https://%s%s", s.apphostname, r.URL.String())
 
 	w.WriteHeader(http.StatusAccepted)
 }

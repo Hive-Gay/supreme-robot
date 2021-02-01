@@ -12,28 +12,28 @@ type AccordionDashTemplate struct {
 	Headers []*models.AccordionHeader
 }
 
-func HandleAccordionDashGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleAccordionDashGet(w http.ResponseWriter, r *http.Request) {
 	// Init template variables
 	tmplVars := &AccordionDashTemplate{}
 	err := initTemplate(w, r, tmplVars)
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	tmplVars.HiveLinkCount, err = modelClient.CountHiveHeaderLinks()
+	tmplVars.HiveLinkCount, err = s.modelClient.CountHiveHeaderLinks()
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	tmplVars.Headers, err = modelClient.ReadAccordionHeaders()
+	tmplVars.Headers, err = s.modelClient.ReadAccordionHeaders()
 	if err != nil {
-		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
+		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	err = templates.ExecuteTemplate(w, "accordion_dashboard", tmplVars)
+	err = s.templates.ExecuteTemplate(w, "accordion_dashboard", tmplVars)
 	if err != nil {
 		logger.Errorf("could not render template: %s", err.Error())
 	}
