@@ -38,6 +38,7 @@ var (
 	apphostname    string
 	ctx            context.Context
 	logger         *loggo.Logger
+	modelClient    *models.Client
 	store          *redistore.RediStore
 	oauth2Config   oauth2.Config
 	oauth2Verifier *oidc.IDTokenVerifier
@@ -49,7 +50,8 @@ func Close() {
 	store.Close()
 }
 
-func Init(rp *redis.Pool, tc *twilio.Client) error {
+func Init(rp *redis.Pool, mc *models.Client, tc *twilio.Client) error {
+	modelClient = mc
 	twilioClient = tc
 
 	newLogger := loggo.GetLogger("web")
@@ -77,7 +79,6 @@ func Init(rp *redis.Pool, tc *twilio.Client) error {
 	// Register models for GOB
 	gob.Register(models.User{})
 	gob.Register(templateAlert{})
-
 
 	// Configure Oauth
 	apphostname = os.Getenv("APP_HOSTNAME")

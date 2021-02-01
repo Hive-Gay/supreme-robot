@@ -65,9 +65,10 @@ func main() {
 				return
 			}
 
-			err = models.Init()
+			// Database
+			modelClient, err := initModels(true)
 			if err != nil {
-				logger.Errorf("could not start models: %s", err.Error())
+				logger.Errorf("could not start redis: %s", err.Error())
 				return
 			}
 
@@ -78,7 +79,7 @@ func main() {
 				return
 			}
 
-			err = webapp.Init(redisPool, twilioClient)
+			err = webapp.Init(redisPool, modelClient, twilioClient)
 			if err != nil {
 				logger.Errorf("could not start webapp: %s", err.Error())
 				return
@@ -127,4 +128,15 @@ func initTwilio() (*twilio.Client, error) {
 	}
 
 	return twilio.NewClient(twilioAccountSID, twilioAuthToken), nil
+}
+
+
+func initModels(doMigration bool) (*models.Client, error) {
+	// DB_ENGINE
+	DBEngine := os.Getenv("DB_ENGINE")
+	if DBEngine == "" {
+		return nil, errors.New("missing env var DB_ENGINE")
+	}
+
+	return models.NewClient(DBEngine, doMigration)
 }

@@ -2,7 +2,6 @@ package webapp
 
 import (
 	"database/sql"
-	"github.com/Hive-Gay/supreme-robot/models"
 	"net/http"
 )
 
@@ -29,7 +28,7 @@ func HandleAccordion(w http.ResponseWriter, r *http.Request) {
 		Title: "The Hive",
 	}
 
-	hiveLinks, err := models.ReadAccordionLinks(sql.NullInt32{Valid: false})
+	hiveLinks, err := modelClient.ReadAccordionLinks(sql.NullInt32{Valid: false})
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -46,7 +45,7 @@ func HandleAccordion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get other headers
-	mHeaders, err := models.ReadAccordionHeaders()
+	mHeaders, err := modelClient.ReadAccordionHeaders()
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -57,7 +56,7 @@ func HandleAccordion(w http.ResponseWriter, r *http.Request) {
 			Title: mHeader.Title,
 		}
 
-		headerLinks, err := models.ReadAccordionLinks(sql.NullInt32{Valid: true, Int32: int32(mHeader.ID)})
+		headerLinks, err := modelClient.ReadAccordionLinks(sql.NullInt32{Valid: true, Int32: int32(mHeader.ID)})
 		if err != nil {
 			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return

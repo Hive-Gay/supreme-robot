@@ -48,7 +48,7 @@ func HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request) {
 			Title: "The Hive",
 		}
 	} else {
-		tmplVars.Header, err = models.ReadAccordionHeader(headerID)
+		tmplVars.Header, err = modelClient.ReadAccordionHeader(headerID)
 		if err != nil {
 			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
@@ -111,7 +111,7 @@ func HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Request) {
 		al.AccordionHeaderID = sql.NullInt32{Valid: true, Int32: int32(headerID)}
 	}
 
-	err = models.CreateAccordionLink(&al)
+	err = modelClient.CreateAccordionLink(&al)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -158,7 +158,7 @@ func HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Request) {
 		headerIDSQL.Valid = true
 		headerIDSQL.Int32 = int32(headerID)
 
-		tmplVars.Header, err = models.ReadAccordionHeader(headerID)
+		tmplVars.Header, err = modelClient.ReadAccordionHeader(headerID)
 		if err != nil {
 			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
@@ -176,7 +176,7 @@ func HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	link, err := models.ReadAccordionLink(headerIDSQL, linkID)
+	link, err := modelClient.ReadAccordionLink(headerIDSQL, linkID)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -233,7 +233,7 @@ func HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Request) {
 		headerIDSQL.Valid = true
 		headerIDSQL.Int32 = int32(headerID)
 
-		header, err := models.ReadAccordionHeader(headerID)
+		header, err := modelClient.ReadAccordionHeader(headerID)
 		if err != nil {
 			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
@@ -251,7 +251,7 @@ func HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	link, err := models.ReadAccordionLink(headerIDSQL, linkID)
+	link, err := modelClient.ReadAccordionLink(headerIDSQL, linkID)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -262,7 +262,7 @@ func HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete link
-	err = models.DeleteAccordionLink(linkID)
+	err = modelClient.DeleteAccordionLink(linkID)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -310,7 +310,7 @@ func HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Request) {
 		headerIDSQL.Valid = true
 		headerIDSQL.Int32 = int32(headerID)
 
-		tmplVars.Header, err = models.ReadAccordionHeader(headerID)
+		tmplVars.Header, err = modelClient.ReadAccordionHeader(headerID)
 		if err != nil {
 			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
@@ -328,7 +328,7 @@ func HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	link, err := models.ReadAccordionLink(headerIDSQL, linkID)
+	link, err := modelClient.ReadAccordionLink(headerIDSQL, linkID)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -383,7 +383,7 @@ func HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Request) {
 		headerIDSQL.Valid = true
 		headerIDSQL.Int32 = int32(headerID)
 
-		header, err := models.ReadAccordionHeader(headerID)
+		header, err := modelClient.ReadAccordionHeader(headerID)
 		if err != nil {
 			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
@@ -401,7 +401,7 @@ func HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	link, err := models.ReadAccordionLink(headerIDSQL, linkID)
+	link, err := modelClient.ReadAccordionLink(headerIDSQL, linkID)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -421,7 +421,7 @@ func HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Request) {
 	link.Title = r.Form.Get("title")
 	link.Link = r.Form.Get("link")
 
-	err = models.UpdateAccordionLink(link)
+	err = modelClient.UpdateAccordionLink(link)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return

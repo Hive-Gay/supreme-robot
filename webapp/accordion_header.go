@@ -72,7 +72,7 @@ func HandleAccordionHeaderAddPost(w http.ResponseWriter, r *http.Request) {
 		Title: r.Form.Get("title"),
 	}
 
-	err = models.CreateAccordionHeader(&ah)
+	err = modelClient.CreateAccordionHeader(&ah)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -107,7 +107,7 @@ func HandleAccordionHeaderDeleteGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	header, err := models.ReadAccordionHeader(headerID)
+	header, err := modelClient.ReadAccordionHeader(headerID)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -151,7 +151,7 @@ func HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	header, err := models.ReadAccordionHeader(headerID)
+	header, err := modelClient.ReadAccordionHeader(headerID)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -161,7 +161,7 @@ func HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = models.DeleteAccordionHeader(headerID)
+	err = modelClient.DeleteAccordionHeader(headerID)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -196,7 +196,7 @@ func HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	header, err := models.ReadAccordionHeader(headerID)
+	header, err := modelClient.ReadAccordionHeader(headerID)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -239,7 +239,7 @@ func HandleAccordionHeaderEditPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	header, err := models.ReadAccordionHeader(headerID)
+	header, err := modelClient.ReadAccordionHeader(headerID)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -258,7 +258,7 @@ func HandleAccordionHeaderEditPost(w http.ResponseWriter, r *http.Request) {
 
 	header.Title =  r.Form.Get("title")
 
-	err = models.UpdateAccordionHeaders(header)
+	err = modelClient.UpdateAccordionHeaders(header)
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -299,13 +299,13 @@ func HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request) {
 			Title: "The Hive",
 		}
 
-		tmplVars.Links, err = models.ReadAccordionLinks(sql.NullInt32{Valid: false})
+		tmplVars.Links, err = modelClient.ReadAccordionLinks(sql.NullInt32{Valid: false})
 		if err != nil {
 			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
 	} else {
-		tmplVars.Header, err = models.ReadAccordionHeader(headerID)
+		tmplVars.Header, err = modelClient.ReadAccordionHeader(headerID)
 		if err != nil {
 			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
@@ -315,7 +315,7 @@ func HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		tmplVars.Links, err = models.ReadAccordionLinks(sql.NullInt32{Valid: true, Int32: int32(tmplVars.Header.ID)})
+		tmplVars.Links, err = modelClient.ReadAccordionLinks(sql.NullInt32{Valid: true, Int32: int32(tmplVars.Header.ID)})
 		if err != nil {
 			returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return

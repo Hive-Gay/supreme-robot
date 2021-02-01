@@ -21,13 +21,13 @@ func HandleAccordionDashGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmplVars.HiveLinkCount, err = models.CountHiveHeaderLinks()
+	tmplVars.HiveLinkCount, err = modelClient.CountHiveHeaderLinks()
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	tmplVars.Headers, err = models.ReadAccordionHeaders()
+	tmplVars.Headers, err = modelClient.ReadAccordionHeaders()
 	if err != nil {
 		returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return

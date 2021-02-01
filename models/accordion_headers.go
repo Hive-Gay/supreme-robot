@@ -15,9 +15,9 @@ type AccordionHeader struct {
 	UpdatedAt time.Time `db:"updated_at" ,json:"updated_at"`
 }
 
-func CountHiveHeaderLinks() (int, error) {
+func (c *Client)CountHiveHeaderLinks() (int, error) {
 	var count int
-	err := client.
+	err := c.client.
 		Get(&count, `SELECT count(id) FROM public.accordion_links WHERE accordion_header_id is NULL;`)
 	if err != nil {
 		return 0, err
@@ -26,8 +26,8 @@ func CountHiveHeaderLinks() (int, error) {
 	return count, nil
 }
 
-func CreateAccordionHeader(a *AccordionHeader) error {
-	err := client.
+func (c *Client)CreateAccordionHeader(a *AccordionHeader) error {
+	err := c.client.
 		QueryRowx(`INSERT INTO public.accordion_headers(title) 
 		VALUES ($1) RETURNING id, created_at, updated_at;`, a.Title).
 		Scan(&a.ID, &a.CreatedAt, &a.UpdatedAt)
@@ -35,8 +35,8 @@ func CreateAccordionHeader(a *AccordionHeader) error {
 	return err
 }
 
-func DeleteAccordionHeader(id int) error {
-	err := client.
+func (c *Client)DeleteAccordionHeader(id int) error {
+	err := c.client.
 		QueryRowx(`DELETE FROM accordion_headers WHERE id = $1;`, id).
 		Scan()
 	if err == sql.ErrNoRows {
@@ -46,9 +46,9 @@ func DeleteAccordionHeader(id int) error {
 	return err
 }
 
-func ReadAccordionHeader(id int) (*AccordionHeader, error) {
+func (c *Client)ReadAccordionHeader(id int) (*AccordionHeader, error) {
 	var header AccordionHeader
-	err := client.
+	err := c.client.
 		Get(&header, `SELECT id ,title, created_at, updated_at 
 		FROM accordion_headers WHERE id = $1;`, id)
 	if err == sql.ErrNoRows {
@@ -60,9 +60,9 @@ func ReadAccordionHeader(id int) (*AccordionHeader, error) {
 	return &header, nil
 }
 
-func ReadAccordionHeaders() ([]*AccordionHeader, error) {
+func (c *Client)ReadAccordionHeaders() ([]*AccordionHeader, error) {
 	var ahs []*AccordionHeader
-	err := client.
+	err := c.client.
 		Select(&ahs, `SELECT h.id ,h.title, h.created_at, h.updated_at, COUNT(l.id) as link_count
 		FROM accordion_headers as h
 		LEFT JOIN accordion_links as l ON h.id = l.accordion_header_id
@@ -75,8 +75,8 @@ func ReadAccordionHeaders() ([]*AccordionHeader, error) {
 	return ahs, nil
 }
 
-func UpdateAccordionHeaders(a *AccordionHeader) error {
-	err := client.
+func (c *Client)UpdateAccordionHeaders(a *AccordionHeader) error {
+	err := c.client.
 		QueryRowx(`UPDATE public.accordion_headers
 		SET title=$1, updated_at=CURRENT_TIMESTAMP
 		WHERE id=$2 RETURNING updated_at;`, a.Title, a.ID).
