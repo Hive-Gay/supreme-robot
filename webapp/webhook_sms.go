@@ -6,7 +6,30 @@ import (
 )
 
 func HandleWebhookSMSPost(w http.ResponseWriter, r *http.Request) {
-	url := fmt.Sprintf("https://%s%s", apphostname, r.URL.String())
+	// Get Signature from Header
+	signature := ""
+	idempotencyToken := ""
+
+	for name, values := range r.Header {
+		if name == "X-Twilio-Signature" {
+			signature = values[0]
+		}
+		if name == "I-Twilio-Idempotency-Token" {
+			idempotencyToken = values[0]
+		}
+	}
+
+	// If no signature send unauthorized
+	if signature == "" {
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	// If no idempotencyToken send bad request
+	if idempotencyToken == "" {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
 
 	// parse form data
 	err := r.ParseForm()
@@ -15,14 +38,16 @@ func HandleWebhookSMSPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get Signature from Header
-	sendSignature := ""
+	// Loop over header names
 	for name, values := range r.Header {
-		if name == "X-Twilio-Signature" {
-			sendSignature = values[0]
+		// Loop over all values for the name.
+		for _, value := range values {
+			fmt.Println(name, value)
 		}
 	}
 
-	fmt.Println(twilioClient.VerifySignature(sendSignature, url, r.Form))
+	// Write
+	_ = fmt.Sprintf("https://%s%s", apphostname, r.URL.String())
 
+	w.WriteHeader(http.StatusAccepted)
 }

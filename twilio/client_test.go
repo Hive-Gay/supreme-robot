@@ -14,8 +14,4 @@ func TestNewClient(t *testing.T) {
 	if client.token != "bar" {
 		t.Errorf("Client sid was incorrect, got: %v, want: %v.", client.token, "bar")
 	}
-
-	if client.logger == nil {
-		t.Errorf("Client logger was incorrect, got: %v.", client.logger)
-	}
 }

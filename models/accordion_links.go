@@ -62,12 +62,12 @@ func (c *Client)ReadAccordionLink(headerID sql.NullInt32, linkID int) (*Accordio
 
 	var err error
 	if headerID.Valid {
-		c.logger.Tracef("getting header %d link %d", headerID.Int32, linkID)
+		logger.Tracef("getting header %d link %d", headerID.Int32, linkID)
 		err = c.client.
 			Get(&link, `SELECT id, accordion_header_id, title, link, created_at, updated_at 
 			FROM accordion_links WHERE id = $1 AND accordion_header_id = $2;`, linkID, headerID.Int32)
 	} else {
-		c.logger.Tracef("getting header NULL link %d", linkID)
+		logger.Tracef("getting header NULL link %d", linkID)
 		err = c.client.
 			Get(&link, `SELECT id, accordion_header_id, title, link, created_at, updated_at 
 			FROM accordion_links WHERE id = $1 AND accordion_header_id is NULL;`, linkID)

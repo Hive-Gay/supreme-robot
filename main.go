@@ -4,6 +4,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/Hive-Gay/supreme-robot/jobs"
 	"github.com/Hive-Gay/supreme-robot/models"
 	"github.com/Hive-Gay/supreme-robot/twilio"
 	"github.com/Hive-Gay/supreme-robot/webapp"
@@ -17,13 +18,11 @@ import (
 	"syscall"
 )
 
-var logger *loggo.Logger
+const JobNamespace = "supreme_robot"
+
+var logger = loggo.GetLogger("main")
 
 func main() {
-
-	// Init Logging
-	newLogger := loggo.GetLogger("main")
-	logger = &newLogger
 
 	_, err := loggo.ReplaceDefaultWriter(loggocolor.NewWriter(os.Stderr))
 	if err != nil {
@@ -72,14 +71,10 @@ func main() {
 				return
 			}
 
-			// Twilio
-			twilioClient , err := initTwilio()
-			if err != nil {
-				logger.Errorf("could not start twilio: %s", err.Error())
-				return
-			}
+			// Job Queue
+			enqueuer := jobs.NewEnqueuer(JobNamespace, redisPool)
 
-			err = webapp.Init(redisPool, modelClient, twilioClient)
+			err = webapp.Init(redisPool, modelClient, enqueuer)
 			if err != nil {
 				logger.Errorf("could not start webapp: %s", err.Error())
 				return

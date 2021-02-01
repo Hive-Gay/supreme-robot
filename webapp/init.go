@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/gob"
 	"errors"
+	"github.com/Hive-Gay/supreme-robot/jobs"
 	"github.com/Hive-Gay/supreme-robot/models"
-	"github.com/Hive-Gay/supreme-robot/twilio"
 	"github.com/Hive-Gay/supreme-robot/util"
 	"github.com/coreos/go-oidc"
 	"github.com/garyburd/redigo/redis"
@@ -34,28 +34,26 @@ var adminGroups = []string{
 	groupMailAdmin,
 }
 
+var logger = loggo.GetLogger("web")
+
 var (
 	apphostname    string
+	enqueuer       *jobs.Enqueuer
 	ctx            context.Context
-	logger         *loggo.Logger
 	modelClient    *models.Client
 	store          *redistore.RediStore
 	oauth2Config   oauth2.Config
 	oauth2Verifier *oidc.IDTokenVerifier
 	templates      *template.Template
-	twilioClient   *twilio.Client
 )
 
 func Close() {
 	store.Close()
 }
 
-func Init(rp *redis.Pool, mc *models.Client, tc *twilio.Client) error {
+func Init(rp *redis.Pool, mc *models.Client, e *jobs.Enqueuer) error {
+	enqueuer = e
 	modelClient = mc
-	twilioClient = tc
-
-	newLogger := loggo.GetLogger("web")
-	logger = &newLogger
 
 	// Load Templates
 	templateDir := pkger.Include("/webapp/templates")

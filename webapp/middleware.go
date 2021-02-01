@@ -61,7 +61,7 @@ func Middleware(next http.Handler) http.Handler {
 
 		// Log It
 		duration := time.Since(start)
-		logger.Infof("%s - %s [%s] \"%s %s %s\" %d %d \"%s\" \"%s\" rt=%d",
+		logger.Debugf("%s - %s [%s] \"%s %s %s\" %d %d \"%s\" \"%s\" rt=%d",
 			r.RemoteAddr,
 			"-",
 			start.Format(layoutCombined),
