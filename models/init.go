@@ -10,6 +10,8 @@ import (
 	"os"
 )
 
+
+
 var (
 	client *sqlx.DB
 	logger *loggo.Logger
@@ -49,3 +51,4 @@ func Init() error {
 	}
 	return nil
 }
+

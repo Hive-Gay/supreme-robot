@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Hive-Gay/supreme-robot/models"
+	"github.com/Hive-Gay/supreme-robot/twilio"
 	"github.com/Hive-Gay/supreme-robot/webapp"
 	"github.com/garyburd/redigo/redis"
 	"github.com/juju/loggo"
@@ -56,6 +57,8 @@ func main() {
 			}
 
 			logger.Infof("Starting Supreme Robot")
+
+			// Redis
 			redisPool, err := initRedisPool()
 			if err != nil {
 				logger.Errorf("could not start redis: %s", err.Error())
@@ -68,7 +71,14 @@ func main() {
 				return
 			}
 
-			err = webapp.Init(redisPool)
+			// Twilio
+			twilioClient , err := initTwilio()
+			if err != nil {
+				logger.Errorf("could not start twilio: %s", err.Error())
+				return
+			}
+
+			err = webapp.Init(redisPool, twilioClient)
 			if err != nil {
 				logger.Errorf("could not start webapp: %s", err.Error())
 				return
@@ -102,4 +112,19 @@ func initRedisPool() (*redis.Pool, error) {
 			return redis.Dial("tcp", RedisAddress)
 		},
 	}, nil
+}
+
+func initTwilio() (*twilio.Client, error) {
+	// Twilio Stuff
+	twilioAccountSID := os.Getenv("TWILIO_ACCOUNT_SID")
+	if twilioAccountSID == "" {
+		return nil, errors.New("missing env var TWILIO_ACCOUNT_SID")
+	}
+
+	twilioAuthToken := os.Getenv("TWILIO_AUTH_TOKEN")
+	if twilioAuthToken == "" {
+		return nil, errors.New("missing env var TWILIO_TOKEN")
+	}
+
+	return twilio.NewClient(twilioAccountSID, twilioAuthToken), nil
 }

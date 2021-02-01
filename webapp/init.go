@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"errors"
 	"github.com/Hive-Gay/supreme-robot/models"
+	"github.com/Hive-Gay/supreme-robot/twilio"
 	"github.com/Hive-Gay/supreme-robot/util"
 	"github.com/coreos/go-oidc"
 	"github.com/garyburd/redigo/redis"
@@ -34,19 +35,23 @@ var adminGroups = []string{
 }
 
 var (
+	apphostname    string
 	ctx            context.Context
 	logger         *loggo.Logger
 	store          *redistore.RediStore
 	oauth2Config   oauth2.Config
 	oauth2Verifier *oidc.IDTokenVerifier
 	templates      *template.Template
+	twilioClient   *twilio.Client
 )
 
 func Close() {
 	store.Close()
 }
 
-func Init(rp *redis.Pool) error {
+func Init(rp *redis.Pool, tc *twilio.Client) error {
+	twilioClient = tc
+
 	newLogger := loggo.GetLogger("web")
 	logger = &newLogger
 
@@ -73,15 +78,16 @@ func Init(rp *redis.Pool) error {
 	gob.Register(models.User{})
 	gob.Register(templateAlert{})
 
+
 	// Configure Oauth
-	AppHostname := os.Getenv("APP_HOSTNAME")
-	if AppHostname == "" {
+	apphostname = os.Getenv("APP_HOSTNAME")
+	if apphostname == "" {
 		return errors.New("missing env var APP_HOSTNAME")
 	}
 
 	callbackURL := &url.URL{
 		Scheme: "https",
-		Host:   AppHostname,
+		Host:   apphostname,
 		Path:   "/oauth/callback",
 	}
 
@@ -138,6 +144,7 @@ func Init(rp *redis.Pool) error {
 	r.HandleFunc("/login", HandleLogin).Methods("GET")
 	r.HandleFunc("/logout", HandleLogout).Methods("GET")
 	r.HandleFunc("/oauth/callback", HandleOauthCallback).Methods("GET")
+	r.HandleFunc("/webhook/sms", HandleWebhookSMSPost).Methods("POST")
 
 	// Protected Pages
 	protected := r.PathPrefix("/app/").Subrouter()
