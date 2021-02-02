@@ -69,7 +69,7 @@ func (s *Server)HandleWebhookSMSPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Enqueue
-	err = s.enqueuer.ReceivedSMS(uri, string(paramsJson), idempotencyToken)
+	err = s.enqueuer.ReceivedSMS(string(paramsJson), idempotencyToken)
 	if err != nil {
 		logger.Warningf("couldn't enqueue sms: %s", err.Error())
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())

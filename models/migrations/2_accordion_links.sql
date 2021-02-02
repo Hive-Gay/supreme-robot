@@ -9,7 +9,7 @@ CREATE TABLE "public"."accordion_links" (
     updated_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("id"),
     unique (accordion_header_id, title),
-    CONSTRAINT fk_accordion_header_id FOREIGN KEY (accordion_header_id) REFERENCES accordion_headers (id) ON DELETE CASCADE
+    FOREIGN KEY (accordion_header_id) REFERENCES accordion_headers (id) ON DELETE CASCADE
 )
 ;
 

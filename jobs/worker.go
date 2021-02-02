@@ -6,8 +6,11 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
-type Worker struct {
+type Context struct{
 	modelclient *models.Client
+}
+
+type Worker struct {
 	pool        *work.WorkerPool
 }
 
@@ -23,11 +26,14 @@ func NewWorker(namespace string, redisAddress string, mc *models.Client) *Worker
 		},
 	})
 
+	c  := Context{
+		modelclient: mc,
+	}
+
 	// Map the name of jobs to handler functions
-	pool.Job(jobNameReceivedSMS, (*Context).ReceivedSMS)
+	pool.Job(jobNameReceivedSMS, c.ReceivedSMS)
 
 	return &Worker{
-		modelclient: mc,
 		pool: pool,
 	}
 }
