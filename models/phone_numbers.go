@@ -99,6 +99,8 @@ func (c *Client)UpsertPhoneNumber(pn *PhoneNumber) error {
 		return nil
 	}
 
-	pn = foundPN
+	pn.ID = foundPN.ID
+	pn.CreatedAt = foundPN.CreatedAt
+	pn.UpdatedAt = foundPN.UpdatedAt
 	return nil
 }

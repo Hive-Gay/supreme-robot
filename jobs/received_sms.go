@@ -5,17 +5,15 @@ import (
 	"encoding/json"
 	"github.com/Hive-Gay/supreme-robot/models"
 	"github.com/gocraft/work"
-	"github.com/google/uuid"
 	"strconv"
 )
 
 const jobNameReceivedSMS = "received_sms"
 
-func (e *Enqueuer) ReceivedSMS(params, iToken string) error {
+func (e *Enqueuer) ReceivedSMS(params string) error {
 
 	job, err := e.enqueuer.Enqueue(jobNameReceivedSMS, work.Q{
 		"params": params,
-		"i_token": iToken,
 	})
 	if err != nil {
 		logger.Tracef("[%s] error enqueueing job: %s", jobNameReceivedSMS, err.Error())
@@ -29,16 +27,11 @@ func (e *Enqueuer) ReceivedSMS(params, iToken string) error {
 func (c *Context) ReceivedSMS(job *work.Job) error {
 	// Extract arguments:
 	params := job.ArgString("params")
-	iToken, err := uuid.Parse(job.ArgString("i_token"))
-	if err != nil {
-		logger.Debugf("[%s](%s) couldn't parse uuid: %s", jobNameReceivedSMS, job.ID, err.Error())
-		return err
-	}
 
-	logger.Debugf("[%s](%s) processing sms: %s", jobNameReceivedSMS, job.ID, iToken)
+	logger.Debugf("[%s](%s) processing sms", jobNameReceivedSMS, job.ID)
 
 	var smsData map[string][]string
-	err = json.Unmarshal([]byte(params), &smsData)
+	err := json.Unmarshal([]byte(params), &smsData)
 	if err != nil {
 		logger.Debugf("[%s](%s) couldn't unmarshal params: %s", jobNameReceivedSMS, job.ID, err.Error())
 		return err
@@ -101,6 +94,7 @@ func (c *Context) ReceivedSMS(job *work.Job) error {
 		logger.Debugf("[%s](%s) couldn't read number from database: %s", jobNameReceivedSMS, job.ID, err.Error())
 		return err
 	}
+	logger.Tracef("[%s](%s) fromPhoneNumber: %#v", jobNameReceivedSMS, job.ID, fromPhoneNumber)
 
 	// Get To Object
 	toPhoneNumber := models.PhoneNumber{
@@ -158,12 +152,15 @@ func (c *Context) ReceivedSMS(job *work.Job) error {
 		return err
 	}
 
+	logger.Tracef("[%s](%s) toPhoneNumber: %#v", jobNameReceivedSMS, job.ID, toPhoneNumber)
+
 	// Populate SMS
 	smsLog := models.SMSIncomingLog{
 		Direction: "incoming",
 		FromID: fromPhoneNumber.ID,
 		ToID: toPhoneNumber.ID,
 	}
+
 	if val, ok := smsData["AccountSid"]; ok {
 		if len(val) > 0 {
 			smsLog.AccountSid = val[0]
