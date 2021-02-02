@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/Hive-Gay/supreme-robot/jobs"
 	"github.com/Hive-Gay/supreme-robot/models"
+	"github.com/Hive-Gay/supreme-robot/twilio"
 	"github.com/coreos/go-oidc"
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/mux"
@@ -30,12 +31,14 @@ type Server struct {
 	oauth2Verifier *oidc.IDTokenVerifier
 	router         *mux.Router
 	templates      *template.Template
+	twilioClient   *twilio.Client
 }
 
-func NewServer(redisAddress string, mc *models.Client, e *jobs.Enqueuer) (*Server, error){
+func NewServer(redisAddress string, mc *models.Client, e *jobs.Enqueuer, tc *twilio.Client) (*Server, error) {
 	server := Server{
-		modelClient: mc,
-		enqueuer: e,
+		modelClient:  mc,
+		enqueuer:     e,
+		twilioClient: tc,
 	}
 
 	// Load Templates
@@ -162,7 +165,7 @@ func NewServer(redisAddress string, mc *models.Client, e *jobs.Enqueuer) (*Serve
 	return &server, nil
 }
 
-func (s *Server)Run() error {
+func (s *Server) Run() error {
 
 	srv := &http.Server{
 		Handler:      s.router,

@@ -69,11 +69,14 @@ func main() {
 				return
 			}
 
+			// Twilio
+			twilioClient, err := initTwilio()
+
 			// Job Queue
 			enqueuer := jobs.NewEnqueuer(JobNamespace, redisAddress)
 
 			// Webapp
-			webServer, err := webapp.NewServer(redisAddress, modelClient, enqueuer)
+			webServer, err := webapp.NewServer(redisAddress, modelClient, enqueuer, twilioClient)
 			if err != nil {
 				logger.Errorf("could not start webapp: %s", err.Error())
 				return

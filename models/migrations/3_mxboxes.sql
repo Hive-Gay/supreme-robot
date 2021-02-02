@@ -5,6 +5,8 @@ CREATE TABLE "public"."mxboxes"
     username character varying NOT NULL,
     domain character varying NOT NULL,
     password character varying NOT NULL,
+    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE (username, domain)
 )
