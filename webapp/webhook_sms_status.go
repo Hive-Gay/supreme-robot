@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func (s *Server)HandleWebhookSMSPost(w http.ResponseWriter, r *http.Request) {
+func (s *Server)HandleWebhookSMSStatusPost(w http.ResponseWriter, r *http.Request) {
 	// make URL
 	uri := fmt.Sprintf("https://%s%s", s.webapphostname, r.URL.String())
 
@@ -69,7 +69,7 @@ func (s *Server)HandleWebhookSMSPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Enqueue
-	err = s.enqueuer.ReceivedSMS(string(paramsJson))
+	err = s.enqueuer.ReceivedSMSStatus(string(paramsJson))
 	if err != nil {
 		logger.Warningf("couldn't enqueue sms: %s", err.Error())
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())

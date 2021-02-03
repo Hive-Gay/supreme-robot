@@ -20,7 +20,7 @@ type PhoneNumber struct {
 func (c *Client)CreatePhoneNumber(a *PhoneNumber) error {
 	err := c.client.
 		QueryRowx(`INSERT INTO public.phone_numbers(num, city, country, state, zip) 
-		VALUES ($1, $2, $3, $4, $5) RETURNING id, created_at, updated_at;`, a.Number, a.City, a.Country, a.State, a.Zip).
+			VALUES ($1, $2, $3, $4, $5) RETURNING id, created_at, updated_at;`, a.Number, a.City, a.Country, a.State, a.Zip).
 		Scan(&a.ID, &a.CreatedAt, &a.UpdatedAt)
 
 	return err
@@ -30,7 +30,7 @@ func (c *Client)ReadPhoneNumber(id int) (*PhoneNumber, error) {
 	var pn PhoneNumber
 	err := c.client.
 		Get(&pn, `SELECT id, num, city, country, state, zip, created_at, updated_at
-		FROM public.phone_numbers WHERE id = $1;`, id)
+			FROM public.phone_numbers WHERE id = $1;`, id)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {
@@ -44,7 +44,7 @@ func (c *Client)ReadPhoneNumberByNumber(num string) (*PhoneNumber, error) {
 	var pn PhoneNumber
 	err := c.client.
 		Get(&pn, `SELECT id, num, city, country, state, zip, created_at, updated_at
-		FROM public.phone_numbers WHERE num = $1;`, num)
+			FROM public.phone_numbers WHERE num = $1;`, num)
 		if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {
@@ -57,8 +57,8 @@ func (c *Client)ReadPhoneNumberByNumber(num string) (*PhoneNumber, error) {
 func (c *Client)UpdatePhoneNumber(pn *PhoneNumber) error {
 	err := c.client.
 		QueryRowx(`UPDATE public.phone_numbers
-		SET city=$2, country=$3, state=$4, zip=$5, updated_at=CURRENT_TIMESTAMP
-		WHERE id=$1 RETURNING created_at, updated_at;`, pn.ID, pn.City, pn.Country, pn.State, pn.Zip).
+			SET city=$2, country=$3, state=$4, zip=$5, updated_at=CURRENT_TIMESTAMP
+			WHERE id=$1 RETURNING created_at, updated_at;`, pn.ID, pn.City, pn.Country, pn.State, pn.Zip).
 		Scan(&pn.CreatedAt, &pn.UpdatedAt)
 
 	return err

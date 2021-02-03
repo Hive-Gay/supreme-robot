@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"github.com/Hive-Gay/supreme-robot/models"
 	"github.com/gocraft/work"
+	"net/url"
 	"strconv"
-	"time"
 )
 
 const jobNameSendSMS = "send_sms"
@@ -47,7 +47,13 @@ func (c *Context) SendSMS(job *work.Job) error {
 		return err
 	}
 
-	resp, err := c.twilioClient.SendMessage(from.Number, to.Number, body, "")
+	callbackURL := &url.URL{
+		Scheme: "https",
+		Host:   c.webappHostname,
+		Path:   "/webhook/sms/status",
+	}
+
+	resp, err := c.twilioClient.SendMessage(from.Number, to.Number, body, callbackURL.String())
 	if err != nil {
 		logger.Debugf("[%s](%s) couldn't send message: %s", jobNameReceivedSMS, job.ID, err.Error())
 		return err
@@ -56,22 +62,10 @@ func (c *Context) SendSMS(job *work.Job) error {
 	numMedia, _ := strconv.Atoi(resp.NumMedia)
 	numSegments, _ := strconv.Atoi(resp.NumSegments)
 
-	dateCreated, err := time.Parse(time.RFC1123Z, resp.DateCreated)
-	if err != nil {
-		logger.Warningf("[%s](%s) can't parse time: %s", jobNameReceivedSMS, job.ID, err.Error())
-	}
-
-	dateUpdated, err := time.Parse(time.RFC1123Z, resp.DateUpdated)
-	if err != nil {
-		logger.Warningf("[%s](%s) can't parse time: %s", jobNameReceivedSMS, job.ID, err.Error())
-	}
-
 	smsLog := models.SMSLog{
 		AccountSid: resp.AccountSid,
 		ApiVersion: resp.ApiVersion,
 		Body: resp.Body,
-		DateCreated: sql.NullTime{Valid: true, Time: dateCreated},
-		DateUpdated: sql.NullTime{Valid: true, Time: dateUpdated},
 		Direction: resp.Direction,
 		FromID:  from.ID,
 		NumMedia: numMedia,
@@ -114,7 +108,7 @@ func (c *Context) SendSMS(job *work.Job) error {
 		}
 	}
 
-	err = c.modelclient.CreateSMSIncomingLog(&smsLog)
+	err = c.modelclient.CreateSMSLog(&smsLog)
 	if err != nil {
 		logger.Errorf("could not save sms: %s", err.Error())
 		return err

@@ -10,13 +10,14 @@ import (
 type Context struct{
 	modelclient *models.Client
 	twilioClient *twilio.Client
+	webappHostname string
 }
 
 type Worker struct {
 	pool        *work.WorkerPool
 }
 
-func NewWorker(namespace string, redisAddress string, mc *models.Client, tc *twilio.Client) *Worker {
+func NewWorker(namespace, webappHostname, redisAddress string, mc *models.Client, tc *twilio.Client) *Worker {
 	logger.Debugf("creating new worker in namespace %s", namespace)
 
 	var pool = work.NewWorkerPool(Context{}, 10, namespace, &redis.Pool{
@@ -31,10 +32,12 @@ func NewWorker(namespace string, redisAddress string, mc *models.Client, tc *twi
 	c := Context{
 		modelclient: mc,
 		twilioClient: tc,
+		webappHostname: webappHostname,
 	}
 
 	// Map the name of jobs to handler functions
 	pool.Job(jobNameReceivedSMS, c.ReceivedSMS)
+	pool.Job(jobNameReceivedSMSStatus, c.ReceivedSMSStatus)
 	pool.Job(jobNameSendSMS, c.SendSMS)
 
 	return &Worker{

@@ -207,7 +207,7 @@ func (c *Context) ReceivedSMS(job *work.Job) error {
 	}
 
 	logger.Tracef("[%s](%s) writing sms to database", jobNameReceivedSMS, job.ID)
-	err = c.modelclient.CreateSMSIncomingLog(&smsLog)
+	err = c.modelclient.CreateSMSLog(&smsLog)
 
 	return err
 }

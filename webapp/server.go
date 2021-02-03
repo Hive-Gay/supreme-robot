@@ -22,7 +22,7 @@ import (
 )
 
 type Server struct {
-	apphostname    string
+	webapphostname string
 	enqueuer       *jobs.Enqueuer
 	ctx            context.Context
 	modelClient    *models.Client
@@ -34,11 +34,12 @@ type Server struct {
 	twilioClient   *twilio.Client
 }
 
-func NewServer(redisAddress string, mc *models.Client, e *jobs.Enqueuer, tc *twilio.Client) (*Server, error) {
+func NewServer(webappHostname, redisAddress string, mc *models.Client, e *jobs.Enqueuer, tc *twilio.Client) (*Server, error) {
 	server := Server{
 		modelClient:  mc,
 		enqueuer:     e,
 		twilioClient: tc,
+		webapphostname: webappHostname,
 	}
 
 	// Load Templates
@@ -72,14 +73,9 @@ func NewServer(redisAddress string, mc *models.Client, e *jobs.Enqueuer, tc *twi
 	gob.Register(templateAlert{})
 
 	// Configure Oauth
-	server.apphostname = os.Getenv("APP_HOSTNAME")
-	if server.apphostname == "" {
-		return nil, errors.New("missing env var APP_HOSTNAME")
-	}
-
 	callbackURL := &url.URL{
 		Scheme: "https",
-		Host:   server.apphostname,
+		Host:   server.webapphostname,
 		Path:   "/oauth/callback",
 	}
 
@@ -137,6 +133,7 @@ func NewServer(redisAddress string, mc *models.Client, e *jobs.Enqueuer, tc *twi
 	server.router.HandleFunc("/logout", HandleLogout).Methods("GET")
 	server.router.HandleFunc("/oauth/callback", server.HandleOauthCallback).Methods("GET")
 	server.router.HandleFunc("/webhook/sms", server.HandleWebhookSMSPost).Methods("POST")
+	server.router.HandleFunc("/webhook/sms/status", server.HandleWebhookSMSStatusPost).Methods("POST")
 
 	// Protected Pages
 	protected := server.router.PathPrefix("/app/").Subrouter()

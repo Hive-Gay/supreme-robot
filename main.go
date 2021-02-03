@@ -62,6 +62,13 @@ func main() {
 				return
 			}
 
+			// Get hostname
+			webappHostname := os.Getenv("WEBAPP_HOSTNAME")
+			if webappHostname == "" {
+				logger.Errorf("missing env var WEBAPP_HOSTNAME")
+				return
+			}
+
 			// Database
 			modelClient, err := initModels(true)
 			if err != nil {
@@ -74,10 +81,10 @@ func main() {
 
 			// Job Queue
 			enqueuer := jobs.NewEnqueuer(JobNamespace, redisAddress)
-			enqueuer.SendSMS(2, 1, "henlo")
+			//enqueuer.SendSMS(2, 1, "henlo")
 
 			// Webapp
-			webServer, err := webapp.NewServer(redisAddress, modelClient, enqueuer, twilioClient)
+			webServer, err := webapp.NewServer(webappHostname, redisAddress, modelClient, enqueuer, twilioClient)
 			if err != nil {
 				logger.Errorf("could not start webapp: %s", err.Error())
 				return
@@ -112,6 +119,13 @@ func main() {
 				return
 			}
 
+		// Get hostname
+		webappHostname := os.Getenv("WEBAPP_HOSTNAME")
+		if webappHostname == "" {
+			logger.Errorf("missing env var WEBAPP_HOSTNAME")
+			return
+		}
+
 			// Database
 			modelsClient, err := initModels(false)
 			if err != nil {
@@ -123,7 +137,7 @@ func main() {
 			twilioClient, err := initTwilio()
 
 			// Job Queue
-			worker := jobs.NewWorker(JobNamespace, redisAddress, modelsClient, twilioClient)
+			worker := jobs.NewWorker(JobNamespace, webappHostname, redisAddress, modelsClient, twilioClient)
 
 			// Start processing jobs
 			worker.Start()
@@ -139,7 +153,6 @@ func main() {
 		})
 
 	commando.Parse(nil)
-
 }
 
 func initTwilio() (*twilio.Client, error) {

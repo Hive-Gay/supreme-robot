@@ -37,7 +37,9 @@ func (c *Client) SendMessage(from, to, body, callback string) (*SendMessageRespo
 	msgData.Set("From", from)
 	msgData.Set("To", to)
 	msgData.Set("Body", body)
-	//msgData.Set("StatusCallback", callback)
+	if callback != "" {
+		msgData.Set("StatusCallback", callback)
+	}
 	msgDataReader := *strings.NewReader(msgData.Encode())
 
 	client := &http.Client{}
