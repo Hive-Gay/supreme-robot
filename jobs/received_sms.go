@@ -94,7 +94,6 @@ func (c *Context) ReceivedSMS(job *work.Job) error {
 		logger.Debugf("[%s](%s) couldn't read number from database: %s", jobNameReceivedSMS, job.ID, err.Error())
 		return err
 	}
-	logger.Tracef("[%s](%s) fromPhoneNumber: %#v", jobNameReceivedSMS, job.ID, fromPhoneNumber)
 
 	// Get To Object
 	toPhoneNumber := models.PhoneNumber{
@@ -152,10 +151,8 @@ func (c *Context) ReceivedSMS(job *work.Job) error {
 		return err
 	}
 
-	logger.Tracef("[%s](%s) toPhoneNumber: %#v", jobNameReceivedSMS, job.ID, toPhoneNumber)
-
 	// Populate SMS
-	smsLog := models.SMSIncomingLog{
+	smsLog := models.SMSLog{
 		Direction: "incoming",
 		FromID: fromPhoneNumber.ID,
 		ToID: toPhoneNumber.ID,
@@ -179,12 +176,6 @@ func (c *Context) ReceivedSMS(job *work.Job) error {
 		}
 	}
 
-	if val, ok := smsData["MessageSid"]; ok {
-		if len(val) > 0 {
-			smsLog.MessageSid = val[0]
-		}
-	}
-
 	if val, ok := smsData["NumMedia"]; ok {
 		if len(val) > 0 {
 			i, err := strconv.Atoi(val[0])
@@ -203,21 +194,15 @@ func (c *Context) ReceivedSMS(job *work.Job) error {
 		}
 	}
 
-	if val, ok := smsData["SmsMessageSid"]; ok {
-		if len(val) > 0 {
-			smsLog.SmsMessageSid = val[0]
-		}
-	}
-
 	if val, ok := smsData["SmsSid"]; ok {
 		if len(val) > 0 {
-			smsLog.SmsSid = val[0]
+			smsLog.Sid = val[0]
 		}
 	}
 
 	if val, ok := smsData["SmsStatus"]; ok {
 		if len(val) > 0 {
-			smsLog.SmsStatus = val[0]
+			smsLog.Status = val[0]
 		}
 	}
 

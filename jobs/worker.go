@@ -2,19 +2,21 @@ package jobs
 
 import (
 	"github.com/Hive-Gay/supreme-robot/models"
+	"github.com/Hive-Gay/supreme-robot/twilio"
 	"github.com/gocraft/work"
 	"github.com/gomodule/redigo/redis"
 )
 
 type Context struct{
 	modelclient *models.Client
+	twilioClient *twilio.Client
 }
 
 type Worker struct {
 	pool        *work.WorkerPool
 }
 
-func NewWorker(namespace string, redisAddress string, mc *models.Client) *Worker {
+func NewWorker(namespace string, redisAddress string, mc *models.Client, tc *twilio.Client) *Worker {
 	logger.Debugf("creating new worker in namespace %s", namespace)
 
 	var pool = work.NewWorkerPool(Context{}, 10, namespace, &redis.Pool{
@@ -26,12 +28,14 @@ func NewWorker(namespace string, redisAddress string, mc *models.Client) *Worker
 		},
 	})
 
-	c  := Context{
+	c := Context{
 		modelclient: mc,
+		twilioClient: tc,
 	}
 
 	// Map the name of jobs to handler functions
 	pool.Job(jobNameReceivedSMS, c.ReceivedSMS)
+	pool.Job(jobNameSendSMS, c.SendSMS)
 
 	return &Worker{
 		pool: pool,

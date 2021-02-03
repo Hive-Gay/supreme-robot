@@ -26,6 +26,20 @@ func (c *Client)CreatePhoneNumber(a *PhoneNumber) error {
 	return err
 }
 
+func (c *Client)ReadPhoneNumber(id int) (*PhoneNumber, error) {
+	var pn PhoneNumber
+	err := c.client.
+		Get(&pn, `SELECT id, num, city, country, state, zip, created_at, updated_at
+		FROM public.phone_numbers WHERE id = $1;`, id)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	return &pn, nil
+}
+
 func (c *Client)ReadPhoneNumberByNumber(num string) (*PhoneNumber, error) {
 	var pn PhoneNumber
 	err := c.client.

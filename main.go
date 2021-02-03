@@ -74,6 +74,7 @@ func main() {
 
 			// Job Queue
 			enqueuer := jobs.NewEnqueuer(JobNamespace, redisAddress)
+			enqueuer.SendSMS(2, 1, "henlo")
 
 			// Webapp
 			webServer, err := webapp.NewServer(redisAddress, modelClient, enqueuer, twilioClient)
@@ -118,8 +119,11 @@ func main() {
 				return
 			}
 
+			// Twilio
+			twilioClient, err := initTwilio()
+
 			// Job Queue
-			worker := jobs.NewWorker(JobNamespace, redisAddress, modelsClient)
+			worker := jobs.NewWorker(JobNamespace, redisAddress, modelsClient, twilioClient)
 
 			// Start processing jobs
 			worker.Start()
