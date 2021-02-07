@@ -156,6 +156,9 @@ func NewServer(webappHostname, redisAddress string, mc *models.Client, e *jobs.E
 	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/edit", server.HandleAccordionLinkEditGet).Methods("GET")
 	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/edit", server.HandleAccordionLinkEditPost).Methods("POST")
 
+	// SMS Dashboard
+	protected.HandleFunc("/sms", server.HandleSMSGet).Methods("GET")
+
 	// Mail Dashboard
 	protected.HandleFunc("/admin/mail", server.HandleMailDashGet).Methods("GET")
 

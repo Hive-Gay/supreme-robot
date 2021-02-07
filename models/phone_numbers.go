@@ -17,7 +17,7 @@ type PhoneNumber struct {
 	UpdatedAt time.Time `db:"updated_at" ,json:"updated_at"`
 }
 
-func (c *Client)CreatePhoneNumber(a *PhoneNumber) error {
+func (a *PhoneNumber)Create(c *Client) error {
 	err := c.client.
 		QueryRowx(`INSERT INTO public.phone_numbers(num, city, country, state, zip) 
 			VALUES ($1, $2, $3, $4, $5) RETURNING id, created_at, updated_at;`, a.Number, a.City, a.Country, a.State, a.Zip).
@@ -54,7 +54,7 @@ func (c *Client)ReadPhoneNumberByNumber(num string) (*PhoneNumber, error) {
 	return &pn, nil
 }
 
-func (c *Client)UpdatePhoneNumber(pn *PhoneNumber) error {
+func (pn *PhoneNumber)Update(c *Client) error {
 	err := c.client.
 		QueryRowx(`UPDATE public.phone_numbers
 			SET city=$2, country=$3, state=$4, zip=$5, updated_at=CURRENT_TIMESTAMP
@@ -64,7 +64,7 @@ func (c *Client)UpdatePhoneNumber(pn *PhoneNumber) error {
 	return err
 }
 
-func (c *Client)UpsertPhoneNumber(pn *PhoneNumber) error {
+func (pn *PhoneNumber)Upsert(c *Client) error {
 	var foundPN *PhoneNumber
 	var err error
 
@@ -77,7 +77,7 @@ func (c *Client)UpsertPhoneNumber(pn *PhoneNumber) error {
 
 	// if not exist, create
 	if foundPN == nil {
-		err = c.CreatePhoneNumber(pn)
+		err = pn.Create(c)
 		if err != nil {
 			logger.Debugf("upsert could not create phone number: %s", err.Error())
 			return err
@@ -105,7 +105,7 @@ func (c *Client)UpsertPhoneNumber(pn *PhoneNumber) error {
 	if changes {
 		logger.Debugf("upsert is updating the metadata for: %s", pn.Number)
 		pn.ID = foundPN.ID
-		err = c.UpdatePhoneNumber(pn)
+		err = pn.Update(c)
 		if err != nil {
 			logger.Debugf("upsert could not update phone number: %s", err.Error())
 			return err

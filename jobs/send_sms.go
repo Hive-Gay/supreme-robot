@@ -62,7 +62,7 @@ func (c *Context) SendSMS(job *work.Job) error {
 	numMedia, _ := strconv.Atoi(resp.NumMedia)
 	numSegments, _ := strconv.Atoi(resp.NumSegments)
 
-	smsLog := models.SMSLog{
+	smsLog := models.SMSConversationLine{
 		AccountSid: resp.AccountSid,
 		ApiVersion: resp.ApiVersion,
 		Body: resp.Body,
@@ -108,7 +108,7 @@ func (c *Context) SendSMS(job *work.Job) error {
 		}
 	}
 
-	err = c.modelclient.CreateSMSLog(&smsLog)
+	err = smsLog.Create(c.modelclient)
 	if err != nil {
 		logger.Errorf("could not save sms: %s", err.Error())
 		return err

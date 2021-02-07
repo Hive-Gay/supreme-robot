@@ -23,6 +23,12 @@ func makeNavbar(r *http.Request) (navbar *[]templateNavbarNode) {
 			FAIcon:   "list-alt",
 			URL:      "/app/accordion",
 		},
+		{
+			Text:     "SMS",
+			MatchStr: "^/app/sms",
+			FAIcon:   "sms",
+			URL:      "/app/sms",
+		},
 	}
 
 	// Show Admin Menu
@@ -46,7 +52,6 @@ func makeNavbar(r *http.Request) (navbar *[]templateNavbarNode) {
 					URL:    "/app/admin/mail",
 				})
 			}
-
 
 			newNavbar = append(newNavbar, adminMenu)
 		}

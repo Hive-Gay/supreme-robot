@@ -93,7 +93,7 @@ func (s *Server)processCallback(r *http.Request) (*models.User, error) {
 		return nil, err
 	}
 
-	logger.Debugf("Response From OAUTH: %s", IDTokenClaims)
+	logger.Tracef("Response From OAUTH: %s", IDTokenClaims)
 
 	user := models.User{}
 	if err := json.Unmarshal(*IDTokenClaims, &user); err != nil {

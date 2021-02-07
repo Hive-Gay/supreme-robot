@@ -50,7 +50,7 @@ func (c *Context) ReceivedSMSStatus(job *work.Job) error {
 
 	logger.Debugf("[%s](%s) sms status update: %s %s", jobNameReceivedSMSStatus, job.ID, sid, status)
 
-	smsLog, err := c.modelclient.ReadSMSLogBySid(sid)
+	smsLog, err := c.modelclient.ReadSMSConversationLineBySid(sid)
 	if err != nil {
 		logger.Errorf("[%s](%s) can't read sms log: %s", jobNameReceivedSMSStatus, job.ID, err.Error())
 		return err
@@ -61,7 +61,7 @@ func (c *Context) ReceivedSMSStatus(job *work.Job) error {
 		return err
 	}
 
-	err = c.modelclient.UpdateSMSLogStatusBySid(smsLog, status)
+	err =smsLog.UpdateStatus(c.modelclient, status)
 	if err != nil {
 		logger.Errorf("[%s](%s) can't update sms logs status: %s", jobNameReceivedSMSStatus, job.ID, err.Error())
 		return err

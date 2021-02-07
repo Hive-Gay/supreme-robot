@@ -29,6 +29,7 @@ func (c *Context) ReceivedSMS(job *work.Job) error {
 	params := job.ArgString("params")
 
 	logger.Debugf("[%s](%s) processing sms", jobNameReceivedSMS, job.ID)
+	logger.Tracef("[%s](%s) params: %s", params)
 
 	var smsData map[string][]string
 	err := json.Unmarshal([]byte(params), &smsData)
@@ -89,7 +90,7 @@ func (c *Context) ReceivedSMS(job *work.Job) error {
 		}
 	}
 
-	err = c.modelclient.UpsertPhoneNumber(&fromPhoneNumber)
+	err = fromPhoneNumber.Upsert(c.modelclient)
 	if err != nil {
 		logger.Debugf("[%s](%s) couldn't read number from database: %s", jobNameReceivedSMS, job.ID, err.Error())
 		return err
@@ -145,14 +146,14 @@ func (c *Context) ReceivedSMS(job *work.Job) error {
 		}
 	}
 
-	err = c.modelclient.UpsertPhoneNumber(&toPhoneNumber)
+	err = toPhoneNumber.Upsert(c.modelclient)
 	if err != nil {
 		logger.Debugf("[%s](%s) couldn't read number To database: %s", jobNameReceivedSMS, job.ID, err.Error())
 		return err
 	}
 
 	// Populate SMS
-	smsLog := models.SMSLog{
+	smsLog := models.SMSConversationLine{
 		Direction: "incoming",
 		FromID: fromPhoneNumber.ID,
 		ToID: toPhoneNumber.ID,
@@ -207,7 +208,7 @@ func (c *Context) ReceivedSMS(job *work.Job) error {
 	}
 
 	logger.Tracef("[%s](%s) writing sms to database", jobNameReceivedSMS, job.ID)
-	err = c.modelclient.CreateSMSLog(&smsLog)
+	err = smsLog.Create(c.modelclient)
 
 	return err
 }
