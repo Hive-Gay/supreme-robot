@@ -72,7 +72,7 @@ func (s *Server)HandleAccordionHeaderAddPost(w http.ResponseWriter, r *http.Requ
 		Title: r.Form.Get("title"),
 	}
 
-	err = s.modelClient.CreateAccordionHeader(&ah)
+	err = ah.Create(s.modelClient)
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -161,7 +161,7 @@ func (s *Server)HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	err = s.modelClient.DeleteAccordionHeader(headerID)
+	err = header.Delete(s.modelClient)
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -258,7 +258,7 @@ func (s *Server)HandleAccordionHeaderEditPost(w http.ResponseWriter, r *http.Req
 
 	header.Title =  r.Form.Get("title")
 
-	err = s.modelClient.UpdateAccordionHeaders(header)
+	err = header.Update(s.modelClient)
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return

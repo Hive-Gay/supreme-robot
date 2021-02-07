@@ -111,7 +111,7 @@ func (s *Server)HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Reques
 		al.AccordionHeaderID = sql.NullInt32{Valid: true, Int32: int32(headerID)}
 	}
 
-	err = s.modelClient.CreateAccordionLink(&al)
+	err = al.Create(s.modelClient)
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -262,7 +262,7 @@ func (s *Server)HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Req
 	}
 
 	// Delete link
-	err = s.modelClient.DeleteAccordionLink(linkID)
+	err = link.Delete(s.modelClient)
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -421,7 +421,7 @@ func (s *Server)HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Reque
 	link.Title = r.Form.Get("title")
 	link.Link = r.Form.Get("link")
 
-	err = s.modelClient.UpdateAccordionLink(link)
+	err = link.Update(s.modelClient)
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return

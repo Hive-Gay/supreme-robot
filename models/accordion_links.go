@@ -16,7 +16,7 @@ type AccordionLink struct {
 	UpdatedAt time.Time `db:"updated_at" ,json:"updated_at"`
 }
 
-func (c *Client)CreateAccordionLink(a *AccordionLink) error {
+func (a *AccordionLink)Create(c *Client) error {
 	err := c.client.
 		QueryRowx(`INSERT INTO public.accordion_links(accordion_header_id, title, link) 
 		VALUES ($1, $2, $3) RETURNING id, created_at, updated_at;`, a.AccordionHeaderID, a.Title, a.Link).
@@ -25,9 +25,9 @@ func (c *Client)CreateAccordionLink(a *AccordionLink) error {
 	return err
 }
 
-func (c *Client)DeleteAccordionLink(id int) error {
+func (a *AccordionLink)Delete(c *Client) error {
 	err := c.client.
-		QueryRowx(`DELETE FROM accordion_links WHERE id = $1;`, id).
+		QueryRowx(`DELETE FROM accordion_links WHERE id = $1;`, a.ID).
 		Scan()
 	if err == sql.ErrNoRows {
 		return nil
@@ -82,7 +82,7 @@ func (c *Client)ReadAccordionLink(headerID sql.NullInt32, linkID int) (*Accordio
 	return &link, nil
 }
 
-func (c *Client)UpdateAccordionLink(a *AccordionLink) error {
+func (a *AccordionLink)Update(c *Client) error {
 	err := c.client.
 		QueryRowx(`UPDATE public.accordion_links
 		SET title=$1, link=$2, updated_at=CURRENT_TIMESTAMP

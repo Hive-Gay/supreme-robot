@@ -26,7 +26,7 @@ func (c *Client)CountHiveHeaderLinks() (int, error) {
 	return count, nil
 }
 
-func (c *Client)CreateAccordionHeader(a *AccordionHeader) error {
+func (a *AccordionHeader)Create(c *Client) error {
 	err := c.client.
 		QueryRowx(`INSERT INTO public.accordion_headers(title) 
 		VALUES ($1) RETURNING id, created_at, updated_at;`, a.Title).
@@ -35,9 +35,9 @@ func (c *Client)CreateAccordionHeader(a *AccordionHeader) error {
 	return err
 }
 
-func (c *Client)DeleteAccordionHeader(id int) error {
+func (a *AccordionHeader)Delete(c *Client) error {
 	err := c.client.
-		QueryRowx(`DELETE FROM accordion_headers WHERE id = $1;`, id).
+		QueryRowx(`DELETE FROM accordion_headers WHERE id = $1;`, a.ID).
 		Scan()
 	if err == sql.ErrNoRows {
 		return nil
@@ -75,7 +75,7 @@ func (c *Client)ReadAccordionHeaders() ([]*AccordionHeader, error) {
 	return ahs, nil
 }
 
-func (c *Client)UpdateAccordionHeaders(a *AccordionHeader) error {
+func (a *AccordionHeader)Update(c *Client) error {
 	err := c.client.
 		QueryRowx(`UPDATE public.accordion_headers
 		SET title=$1, updated_at=CURRENT_TIMESTAMP
