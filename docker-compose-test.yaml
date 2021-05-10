@@ -11,6 +11,16 @@ services:
     ports:
       - "5000:5000"
 
+
+  quotes:
+    image: tyrm/hive-quotes-service:develop
+    environment:
+      - LOG_LEVEL=trace
+      - POSTGRES_DSN=postgresql://test:test@db:5432/quotes?sslmode=disable
+    ports:
+      - "127.0.0.1:7002:5483"
+    restart: always
+
   redis:
     image: redis:6
     command: redis-server --appendonly yes
