@@ -1,4 +1,4 @@
-package models
+package database
 
 type User struct {
 	Subject           string   `json:"sub"`

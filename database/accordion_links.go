@@ -1,4 +1,4 @@
-package models
+package database
 
 import (
 	"database/sql"
@@ -16,8 +16,8 @@ type AccordionLink struct {
 	UpdatedAt time.Time `db:"updated_at" ,json:"updated_at"`
 }
 
-func (a *AccordionLink)Create(c *Client) error {
-	err := c.client.
+func (a *AccordionLink) Create(c *Client) error {
+	err := c.db.
 		QueryRowx(`INSERT INTO public.accordion_links(accordion_header_id, title, link) 
 		VALUES ($1, $2, $3) RETURNING id, created_at, updated_at;`, a.AccordionHeaderID, a.Title, a.Link).
 		Scan(&a.ID, &a.CreatedAt, &a.UpdatedAt)
@@ -25,8 +25,8 @@ func (a *AccordionLink)Create(c *Client) error {
 	return err
 }
 
-func (a *AccordionLink)Delete(c *Client) error {
-	err := c.client.
+func (a *AccordionLink) Delete(c *Client) error {
+	err := c.db.
 		QueryRowx(`DELETE FROM accordion_links WHERE id = $1;`, a.ID).
 		Scan()
 	if err == sql.ErrNoRows {
@@ -36,16 +36,16 @@ func (a *AccordionLink)Delete(c *Client) error {
 	return err
 }
 
-func (c *Client)ReadAccordionLinks(headerID sql.NullInt32) ([]*AccordionLink, error) {
+func (c *Client) ReadAccordionLinks(headerID sql.NullInt32) ([]*AccordionLink, error) {
 	var als []*AccordionLink
 
 	var err error
 	if headerID.Valid {
-		err = c.client.
+		err = c.db.
 			Select(&als, `SELECT id, accordion_header_id, title, link, created_at, updated_at 
 			FROM accordion_links WHERE accordion_header_id = $1 ORDER BY title;`, headerID.Int32)
 	} else {
-		err = c.client.
+		err = c.db.
 			Select(&als, `SELECT id, accordion_header_id, title, link, created_at, updated_at 
 			FROM accordion_links WHERE accordion_header_id is NULL ORDER BY title;`)
 	}
@@ -56,19 +56,18 @@ func (c *Client)ReadAccordionLinks(headerID sql.NullInt32) ([]*AccordionLink, er
 	return als, nil
 }
 
-
-func (c *Client)ReadAccordionLink(headerID sql.NullInt32, linkID int) (*AccordionLink, error) {
+func (c *Client) ReadAccordionLink(headerID sql.NullInt32, linkID int) (*AccordionLink, error) {
 	var link AccordionLink
 
 	var err error
 	if headerID.Valid {
 		logger.Tracef("getting header %d link %d", headerID.Int32, linkID)
-		err = c.client.
+		err = c.db.
 			Get(&link, `SELECT id, accordion_header_id, title, link, created_at, updated_at 
 			FROM accordion_links WHERE id = $1 AND accordion_header_id = $2;`, linkID, headerID.Int32)
 	} else {
 		logger.Tracef("getting header NULL link %d", linkID)
-		err = c.client.
+		err = c.db.
 			Get(&link, `SELECT id, accordion_header_id, title, link, created_at, updated_at 
 			FROM accordion_links WHERE id = $1 AND accordion_header_id is NULL;`, linkID)
 	}
@@ -82,8 +81,8 @@ func (c *Client)ReadAccordionLink(headerID sql.NullInt32, linkID int) (*Accordio
 	return &link, nil
 }
 
-func (a *AccordionLink)Update(c *Client) error {
-	err := c.client.
+func (a *AccordionLink) Update(c *Client) error {
+	err := c.db.
 		QueryRowx(`UPDATE public.accordion_links
 		SET title=$1, link=$2, updated_at=CURRENT_TIMESTAMP
 		WHERE id=$3 RETURNING updated_at;`, a.Title, a.Link, a.ID).

@@ -1,4 +1,4 @@
-package models
+package database
 
 import (
 	"database/sql"
@@ -6,7 +6,7 @@ import (
 )
 
 type PhoneNumber struct {
-	Number  string `db:"num" ,json:"num"`
+	Number  string         `db:"num" ,json:"num"`
 	City    sql.NullString `db:"city" ,json:"city"`
 	Country sql.NullString `db:"country" ,json:"country"`
 	State   sql.NullString `db:"state" ,json:"state"`
@@ -17,8 +17,8 @@ type PhoneNumber struct {
 	UpdatedAt time.Time `db:"updated_at" ,json:"updated_at"`
 }
 
-func (a *PhoneNumber)Create(c *Client) error {
-	err := c.client.
+func (a *PhoneNumber) Create(c *Client) error {
+	err := c.db.
 		QueryRowx(`INSERT INTO public.phone_numbers(num, city, country, state, zip) 
 			VALUES ($1, $2, $3, $4, $5) RETURNING id, created_at, updated_at;`, a.Number, a.City, a.Country, a.State, a.Zip).
 		Scan(&a.ID, &a.CreatedAt, &a.UpdatedAt)
@@ -26,9 +26,9 @@ func (a *PhoneNumber)Create(c *Client) error {
 	return err
 }
 
-func (c *Client)ReadPhoneNumber(id int) (*PhoneNumber, error) {
+func (c *Client) ReadPhoneNumber(id int) (*PhoneNumber, error) {
 	var pn PhoneNumber
-	err := c.client.
+	err := c.db.
 		Get(&pn, `SELECT id, num, city, country, state, zip, created_at, updated_at
 			FROM public.phone_numbers WHERE id = $1;`, id)
 	if err == sql.ErrNoRows {
@@ -40,12 +40,12 @@ func (c *Client)ReadPhoneNumber(id int) (*PhoneNumber, error) {
 	return &pn, nil
 }
 
-func (c *Client)ReadPhoneNumberByNumber(num string) (*PhoneNumber, error) {
+func (c *Client) ReadPhoneNumberByNumber(num string) (*PhoneNumber, error) {
 	var pn PhoneNumber
-	err := c.client.
+	err := c.db.
 		Get(&pn, `SELECT id, num, city, country, state, zip, created_at, updated_at
 			FROM public.phone_numbers WHERE num = $1;`, num)
-		if err == sql.ErrNoRows {
+	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -54,8 +54,8 @@ func (c *Client)ReadPhoneNumberByNumber(num string) (*PhoneNumber, error) {
 	return &pn, nil
 }
 
-func (pn *PhoneNumber)Update(c *Client) error {
-	err := c.client.
+func (pn *PhoneNumber) Update(c *Client) error {
+	err := c.db.
 		QueryRowx(`UPDATE public.phone_numbers
 			SET city=$2, country=$3, state=$4, zip=$5, updated_at=CURRENT_TIMESTAMP
 			WHERE id=$1 RETURNING created_at, updated_at;`, pn.ID, pn.City, pn.Country, pn.State, pn.Zip).
@@ -64,7 +64,7 @@ func (pn *PhoneNumber)Update(c *Client) error {
 	return err
 }
 
-func (pn *PhoneNumber)Upsert(c *Client) error {
+func (pn *PhoneNumber) Upsert(c *Client) error {
 	var foundPN *PhoneNumber
 	var err error
 

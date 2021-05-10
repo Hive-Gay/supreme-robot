@@ -1,4 +1,4 @@
-package models
+package database
 
 import (
 	"database/sql"
@@ -29,7 +29,7 @@ type SMSConversationLine struct {
 }
 
 func (s *SMSConversationLine) Create(c *Client) error {
-	err := c.client.
+	err := c.db.
 		QueryRowx(`INSERT INTO public.sms_conversation_lines(
 			account_sid, api_version, body, direction, error_code, error_message, from_id, num_media, 
             num_segments, price, price_unit, sid, sms_conversation_id, status, "timestamp", to_id)
@@ -48,7 +48,7 @@ func (s *SMSConversationLine) Create(c *Client) error {
 
 func (c *Client) ReadSMSConversationLineBySid(sid string) (*SMSConversationLine, error) {
 	var sl SMSConversationLine
-	err := c.client.
+	err := c.db.
 		Get(&sl, `SELECT id, account_sid, api_version, body, direction, error_code, error_message, 
 			from_id, num_media, num_segments, price, price_unit, sid, status, "timestamp", to_id, created_at, updated_at
 			FROM public.sms_conversation_lines WHERE sid = $1;`, sid)
@@ -62,7 +62,7 @@ func (c *Client) ReadSMSConversationLineBySid(sid string) (*SMSConversationLine,
 }
 
 func (s *SMSConversationLine) UpdateStatus(c *Client, status string) error {
-	err := c.client.
+	err := c.db.
 		QueryRowx(`UPDATE public.sms_conversation_lines
 			SET status=$2, updated_at=CURRENT_TIMESTAMP WHERE id=$1 RETURNING created_at, updated_at;`,
 			s.ID, status).
