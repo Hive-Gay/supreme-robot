@@ -2,7 +2,6 @@ package webapp
 
 import (
 	"context"
-	"github.com/Hive-Gay/supreme-robot/database"
 	"github.com/Hive-Gay/supreme-robot/util"
 	"github.com/gorilla/sessions"
 	"net/http"
@@ -50,9 +49,9 @@ func (s *Server) Middleware(next http.Handler) http.Handler {
 
 		// Retrieve our user and type-assert it
 		val := us.Values["user"]
-		var user = database.User{}
+		var user = OAuthUser{}
 		var ok bool
-		if user, ok = val.(database.User); ok {
+		if user, ok = val.(OAuthUser); ok {
 			ctx = context.WithValue(ctx, UserKey, &user)
 		}
 
@@ -95,7 +94,7 @@ func (s *Server) MiddlewareRequireAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		user := r.Context().Value(UserKey).(*database.User)
+		user := r.Context().Value(UserKey).(*OAuthUser)
 		now := time.Now()
 		if user.ExpiresAt < now.Unix() {
 			// Save current page

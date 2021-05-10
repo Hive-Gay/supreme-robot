@@ -1,7 +1,6 @@
 package webapp
 
 import (
-	"github.com/Hive-Gay/supreme-robot/database"
 	"github.com/Hive-Gay/supreme-robot/util"
 	"net/http"
 	"regexp"
@@ -33,7 +32,7 @@ func makeNavbar(r *http.Request) (navbar *[]templateNavbarNode) {
 
 	// Show Admin Menu
 	if r.Context().Value(UserKey) != nil {
-		user := r.Context().Value(UserKey).(*database.User)
+		user := r.Context().Value(UserKey).(*OAuthUser)
 
 		if util.ContainsOneOfStrings(user.Groups, adminGroups) {
 

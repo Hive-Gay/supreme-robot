@@ -3,6 +3,7 @@ module github.com/Hive-Gay/supreme-robot
 go 1.15
 
 require (
+	github.com/Hive-Gay/go-hivelib v0.26.0
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/go-redis/redis/v8 v8.8.2
 	github.com/google/uuid v1.0.0
@@ -21,6 +22,5 @@ require (
 	github.com/rubenv/sql-migrate v0.0.0-20200616145509-8d140a17f351
 	golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421
 	google.golang.org/appengine v1.6.6 // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 )

@@ -3,6 +3,7 @@ package webapp
 import (
 	"context"
 	"encoding/gob"
+	"github.com/Hive-Gay/go-hivelib/clients/v1/quotes"
 	"github.com/Hive-Gay/supreme-robot/config"
 	"github.com/Hive-Gay/supreme-robot/database"
 	"github.com/Hive-Gay/supreme-robot/redis"
@@ -19,12 +20,16 @@ import (
 )
 
 type Server struct {
-	webapphostname string
-	ctx            context.Context
-
+	// data stuff
 	redis *redis.Client
 	db    *database.Client
 
+	// hive services
+	quotes *quotes.Client
+
+	// web stuff
+	extHostname    string
+	ctx            context.Context
 	store          *redisstore.RedisStore
 	oauth2Config   oauth2.Config
 	oauth2Verifier *oidc.IDTokenVerifier
@@ -33,11 +38,12 @@ type Server struct {
 	templates      *template.Template
 }
 
-func NewServer(cfg *config.Config, rc *redis.Client, mc *database.Client) (*Server, error) {
+func NewServer(cfg *config.Config, rc *redis.Client, mc *database.Client, qc *quotes.Client) (*Server, error) {
 	server := Server{
-		db:             mc,
-		redis:          rc,
-		webapphostname: cfg.ExtHostname,
+		db:          mc,
+		redis:       rc,
+		quotes:      qc,
+		extHostname: cfg.ExtHostname,
 	}
 
 	// Load Templates
@@ -63,13 +69,13 @@ func NewServer(cfg *config.Config, rc *redis.Client, mc *database.Client) (*Serv
 	})
 
 	// Register database for GOB
-	gob.Register(database.User{})
+	gob.Register(OAuthUser{})
 	gob.Register(templateAlert{})
 
 	// Configure Oauth
 	callbackURL := &url.URL{
 		Scheme: "https",
-		Host:   server.webapphostname,
+		Host:   server.extHostname,
 		Path:   "/oauth/callback",
 	}
 
@@ -132,6 +138,9 @@ func NewServer(cfg *config.Config, rc *redis.Client, mc *database.Client) (*Serv
 	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/delete", server.AccordionLinkDeletePostHandler).Methods("POST")
 	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/edit", server.AccordionLinkEditGetHandler).Methods("GET")
 	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/edit", server.AccordionLinkEditPostHandler).Methods("POST")
+
+	// Quotes Dashboard
+	protected.HandleFunc("/quotes", server.QuotesDashGetHandler).Methods("GET")
 
 	return &server, nil
 }

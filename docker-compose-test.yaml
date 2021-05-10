@@ -12,7 +12,7 @@ services:
       - "5000:5000"
 
 
-  quotes:
+  quotes-service:
     image: tyrm/hive-quotes-service:develop
     environment:
       - LOG_LEVEL=trace

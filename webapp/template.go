@@ -1,7 +1,6 @@
 package webapp
 
 import (
-	"github.com/Hive-Gay/supreme-robot/database"
 	"github.com/gorilla/sessions"
 	"github.com/jinzhu/copier"
 	"github.com/markbates/pkger"
@@ -35,7 +34,7 @@ type templateCommon struct {
 	NavBarEnabled bool
 	NavBar        *[]templateNavbarNode
 	PageTitle     string
-	User          *database.User
+	User          *OAuthUser
 }
 
 func (t *templateCommon) EnableNavBar() {
@@ -78,7 +77,7 @@ func (t *templateCommon) SetNavbar(n *[]templateNavbarNode) {
 	return
 }
 
-func (t *templateCommon) SetUser(u *database.User) {
+func (t *templateCommon) SetUser(u *OAuthUser) {
 	t.User = u
 	return
 }
@@ -122,7 +121,7 @@ type templateVars interface {
 	SetHeadFavicons(l *[]templateHeadLink)
 	SetHeadFrameworkCSS(l *[]templateHeadLink)
 	SetNavbar(n *[]templateNavbarNode)
-	SetUser(u *database.User)
+	SetUser(u *OAuthUser)
 }
 
 func compileTemplates(dir string) (*template.Template, error) {
@@ -196,7 +195,7 @@ func initTemplate(w http.ResponseWriter, r *http.Request, tmpl templateVars) err
 
 	// add user
 	if r.Context().Value(UserKey) != nil {
-		user := r.Context().Value(UserKey).(*database.User)
+		user := r.Context().Value(UserKey).(*OAuthUser)
 		tmpl.SetUser(user)
 	}
 

@@ -4,6 +4,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/Hive-Gay/go-hivelib/clients/v1/quotes"
 	"github.com/Hive-Gay/supreme-robot/config"
 	"github.com/Hive-Gay/supreme-robot/database"
 	"github.com/Hive-Gay/supreme-robot/redis"
@@ -36,7 +37,7 @@ func main() {
 	logger := loggo.GetLogger("main")
 	logger.Infof("starting main process")
 
-	// create database client
+	// create redis client
 	rc, err := redis.NewClient(c)
 	if err != nil {
 		logger.Errorf("new db client: %s", err.Error())
@@ -50,8 +51,15 @@ func main() {
 		return
 	}
 
+	// create quotes client
+	qc, err := quotes.NewClient()
+	if err != nil {
+		logger.Errorf("new quotes client: %s", err.Error())
+		return
+	}
+
 	// create web server
-	ws, err := webapp.NewServer(c, rc, db)
+	ws, err := webapp.NewServer(c, rc, db, qc)
 	if err != nil {
 		logger.Errorf("new db client: %s", err.Error())
 		return

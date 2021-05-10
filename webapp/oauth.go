@@ -2,10 +2,28 @@ package webapp
 
 import (
 	"encoding/json"
-	"github.com/Hive-Gay/supreme-robot/database"
 	"github.com/gorilla/sessions"
 	"net/http"
 )
+
+type OAuthUser struct {
+	Subject           string   `json:"sub"`
+	Email             *string  `json:"email"`
+	Name              *string  `json:"name"`
+	PreferredUsername *string  `json:"preferred_username"`
+	Audience          string   `json:"aud"`
+	AuthnCtxClsRef    string   `json:"acr"`
+	AuthorizedParty   string   `json:"azp"`
+	AuthTime          int64    `json:"auth_time"`
+	EmailVerified     bool     `json:"email_verified"`
+	ExpiresAt         int64    `json:"exp"`
+	Groups            []string `json:"group"`
+	IssuedAt          int64    `json:"iat"`
+	Issuer            string   `json:"iss"`
+	SessionState      string   `json:"session_state"`
+	TokenID           string   `json:"jti"`
+	Type              string   `json:"typ"`
+}
 
 func (s *Server) HandleOauthCallback(w http.ResponseWriter, r *http.Request) {
 	// Init Session
@@ -74,7 +92,7 @@ func (s *Server) HandleOauthCallback(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (s *Server) processCallback(r *http.Request) (*database.User, error) {
+func (s *Server) processCallback(r *http.Request) (*OAuthUser, error) {
 	oauth2Token, err := s.oauth2Config.Exchange(s.ctx, r.URL.Query().Get("code"))
 	if err != nil {
 		return nil, err
@@ -95,7 +113,7 @@ func (s *Server) processCallback(r *http.Request) (*database.User, error) {
 
 	logger.Tracef("Response From OAUTH: %s", IDTokenClaims)
 
-	user := database.User{}
+	user := OAuthUser{}
 	if err := json.Unmarshal(*IDTokenClaims, &user); err != nil {
 		return nil, err
 	}

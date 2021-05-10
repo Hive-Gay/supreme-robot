@@ -1,0 +1,67 @@
+{{ define "quotes_dashboard" -}}
+{{- template "header" . -}}
+<div role="main" class="container">
+    <div class="row">
+        <div class="col">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1><i class="fas quote-right"></i> Quotes Dashboard</h1>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                <h2>Isms</h2>
+                <a href="/app/quotes/add" class="btn btn-outline-success btn-sm"><i class="fas fa-plus"></i></a>
+            </div>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Text</th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {{- range $index, $ism := .IsmList.Data}}
+                    <tr>
+                        <th scope="row"><a href="/app/quotes/isms/{{$ism.Id}}">{{$ism.Id}}</a></th>
+                        <td>{{$ism.Text}}</td>
+                        <td class="text-end">
+                            <a href="/app/quotes/isms/{{$ism.Id}}/edit" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i></a>
+                            <a href="/app/quotes/isms/{{$ism.Id}}/delete" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                {{- end}}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-lg">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                <h2>Sayers</h2>
+                <a href="/app/sayers/add" class="btn btn-outline-success btn-sm"><i class="fas fa-plus"></i></a>
+            </div>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {{- range $index, $sayer := .SayerList.Data}}
+                    <tr>
+                        <th scope="row"><a href="/app/quotes/sayers/{{$sayer.Id}}">{{$sayer.Id}}</a></th>
+                        <td class="text-end">
+                            <a href="/app/quotes/sayers/{{$sayer.Id}}/edit" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i></a>
+                            <a href="/app/quotes/sayers/{{$sayer.Id}}/delete" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                {{- end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div><!-- /.container -->
+{{- template "footer" . -}}
+{{- end }}

@@ -1,7 +1,7 @@
 package redis
 
 var (
-	KeyBase     = "supremerobot:"
+	KeyBase = "supremerobot:"
 
-	KeySession  = KeyBase + "session:"
+	KeySession = KeyBase + "session:"
 )
