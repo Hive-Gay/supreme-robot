@@ -29,7 +29,7 @@ type AccordionHeaderFormTemplate struct {
 	FormButtonSubmitText   string
 }
 
-func (s *Server) HandleAccordionHeaderAddGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) AccordionHeaderAddGetHandler(w http.ResponseWriter, r *http.Request) {
 	// Init template variables
 	tmplVars := &AccordionHeaderFormTemplate{}
 	err := initTemplate(w, r, tmplVars)
@@ -60,7 +60,7 @@ func (s *Server) HandleAccordionHeaderAddGet(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-func (s *Server) HandleAccordionHeaderAddPost(w http.ResponseWriter, r *http.Request) {
+func (s *Server) AccordionHeaderAddPostHandler(w http.ResponseWriter, r *http.Request) {
 	// parse form data
 	err := r.ParseForm()
 	if err != nil {
@@ -90,7 +90,7 @@ func (s *Server) HandleAccordionHeaderAddPost(w http.ResponseWriter, r *http.Req
 	http.Redirect(w, r, "/app/accordion", http.StatusFound)
 }
 
-func (s *Server) HandleAccordionHeaderDeleteGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) AccordionHeaderDeleteGetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
@@ -142,7 +142,7 @@ func (s *Server) HandleAccordionHeaderDeleteGet(w http.ResponseWriter, r *http.R
 	}
 }
 
-func (s *Server) HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.Request) {
+func (s *Server) AccordionHeaderDeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	headerID, err := strconv.Atoi(vars["header"])
@@ -179,7 +179,7 @@ func (s *Server) HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.
 	http.Redirect(w, r, "/app/accordion", http.StatusFound)
 }
 
-func (s *Server) HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) AccordionHeaderEditGetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
@@ -230,7 +230,7 @@ func (s *Server) HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Req
 	}
 }
 
-func (s *Server) HandleAccordionHeaderEditPost(w http.ResponseWriter, r *http.Request) {
+func (s *Server) AccordionHeaderEditPostHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	headerID, err := strconv.Atoi(vars["header"])
@@ -276,7 +276,7 @@ func (s *Server) HandleAccordionHeaderEditPost(w http.ResponseWriter, r *http.Re
 	http.Redirect(w, r, "/app/accordion", http.StatusFound)
 }
 
-func (s *Server) HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) AccordionHeaderGetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables

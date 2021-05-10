@@ -25,7 +25,7 @@ type AccordionLinkFormTemplate struct {
 	FormButtonSubmitText   string
 }
 
-func (s *Server) HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) AccordionLinkAddGetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
@@ -85,7 +85,7 @@ func (s *Server) HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (s *Server) HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Request) {
+func (s *Server) AccordionLinkAddPostHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	headerID, err := strconv.Atoi(vars["header"])
@@ -129,7 +129,7 @@ func (s *Server) HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Reque
 	http.Redirect(w, r, fmt.Sprintf("/app/accordion/%d", headerID), http.StatusFound)
 }
 
-func (s *Server) HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) AccordionLinkDeleteGetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
@@ -217,7 +217,7 @@ func (s *Server) HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Req
 	}
 }
 
-func (s *Server) HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Request) {
+func (s *Server) AccordionLinkDeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Get header
@@ -281,7 +281,7 @@ func (s *Server) HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Re
 
 }
 
-func (s *Server) HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) AccordionLinkEditGetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
@@ -367,7 +367,7 @@ func (s *Server) HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func (s *Server) HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Request) {
+func (s *Server) AccordionLinkEditPostHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Get header

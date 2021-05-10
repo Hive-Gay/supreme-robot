@@ -12,7 +12,7 @@ type AccordionDashTemplate struct {
 	Headers       []*database.AccordionHeader
 }
 
-func (s *Server) HandleAccordionDashGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) AccordionDashGetHandler(w http.ResponseWriter, r *http.Request) {
 	// Init template variables
 	tmplVars := &AccordionDashTemplate{}
 	err := initTemplate(w, r, tmplVars)
