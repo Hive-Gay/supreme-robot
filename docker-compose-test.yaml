@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  supreme-robot:
+    build: .
+    environment:
+      - LOG_LEVEL=trace
+      - POSTGRES_DSN=postgresql://test:test@db:5432/supremerobot?sslmode=disable
+    ports:
+      - "127.0.0.1:5000:5000"
+
+  redis:
+    image: redis:6
+    command: redis-server --appendonly yes
+    volumes:
+      - ~/test-hivedata/redisdata:/data:rw
+    restart: always
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=test
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+    ports:
+      - "127.0.0.1:15432:5432"
+    volumes:
+      - ./test/pg-init:/docker-entrypoint-initdb.d:ro
+      - ~/test-hivedata/pgdata:/var/lib/postgresql/data:rw
+    restart: always

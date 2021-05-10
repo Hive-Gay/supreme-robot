@@ -3,7 +3,7 @@ package webapp
 import (
 	"database/sql"
 	"fmt"
-	"github.com/Hive-Gay/supreme-robot/models"
+	"github.com/Hive-Gay/supreme-robot/database"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"net/http"
@@ -14,7 +14,7 @@ type AccordionLinkFormTemplate struct {
 	templateCommon
 	Breadcrumbs *[]templateBreadcrumb
 
-	Header *models.AccordionHeader
+	Header *database.AccordionHeader
 
 	TitleText              string
 	FormInputTitleDisabled bool
@@ -25,7 +25,7 @@ type AccordionLinkFormTemplate struct {
 	FormButtonSubmitText   string
 }
 
-func (s *Server)HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
@@ -43,7 +43,7 @@ func (s *Server)HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request
 	}
 
 	if headerID == 0 {
-		tmplVars.Header = &models.AccordionHeader{
+		tmplVars.Header = &database.AccordionHeader{
 			ID:    0,
 			Title: "The Hive",
 		}
@@ -85,7 +85,7 @@ func (s *Server)HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func (s *Server)HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	headerID, err := strconv.Atoi(vars["header"])
@@ -101,9 +101,9 @@ func (s *Server)HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	al := models.AccordionLink{
+	al := database.AccordionLink{
 		Title: r.Form.Get("title"),
-		Link: r.Form.Get("link"),
+		Link:  r.Form.Get("link"),
 	}
 	if headerID == 0 {
 		al.AccordionHeaderID = sql.NullInt32{Valid: false}
@@ -129,7 +129,7 @@ func (s *Server)HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, fmt.Sprintf("/app/accordion/%d", headerID), http.StatusFound)
 }
 
-func (s *Server)HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
@@ -150,7 +150,7 @@ func (s *Server)HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Requ
 	headerIDSQL := sql.NullInt32{Valid: false}
 
 	if headerID == 0 {
-		tmplVars.Header = &models.AccordionHeader{
+		tmplVars.Header = &database.AccordionHeader{
 			ID:    0,
 			Title: "The Hive",
 		}
@@ -217,7 +217,7 @@ func (s *Server)HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-func (s *Server)HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Get header
@@ -281,7 +281,7 @@ func (s *Server)HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Req
 
 }
 
-func (s *Server)HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
@@ -302,7 +302,7 @@ func (s *Server)HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Reques
 	headerIDSQL := sql.NullInt32{Valid: false}
 
 	if headerID == 0 {
-		tmplVars.Header = &models.AccordionHeader{
+		tmplVars.Header = &database.AccordionHeader{
 			ID:    0,
 			Title: "The Hive",
 		}
@@ -367,7 +367,7 @@ func (s *Server)HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (s *Server)HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Get header

@@ -19,7 +19,7 @@ type AccordionLink struct {
 	Link  string
 }
 
-func (s *Server)HandleAccordion(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordion(w http.ResponseWriter, r *http.Request) {
 	logger.Tracef("Starting HandleAccordion")
 	// Init template variables
 	tmplVars := &AccordionTemplate{}
@@ -37,7 +37,7 @@ func (s *Server)HandleAccordion(w http.ResponseWriter, r *http.Request) {
 	for _, link := range hiveLinks {
 		theHive.Links = append(theHive.Links, AccordionLink{
 			Title: link.Title,
-			Link: link.Link,
+			Link:  link.Link,
 		})
 	}
 
@@ -65,15 +65,12 @@ func (s *Server)HandleAccordion(w http.ResponseWriter, r *http.Request) {
 		for _, link := range headerLinks {
 			header.Links = append(header.Links, AccordionLink{
 				Title: link.Title,
-				Link: link.Link,
+				Link:  link.Link,
 			})
 		}
 
 		tmplVars.Accordion = append(tmplVars.Accordion, header)
 	}
-
-
-
 
 	err = s.templates.ExecuteTemplate(w, "accordion", tmplVars)
 	if err != nil {

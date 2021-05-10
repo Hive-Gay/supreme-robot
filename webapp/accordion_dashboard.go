@@ -1,7 +1,7 @@
 package webapp
 
 import (
-	"github.com/Hive-Gay/supreme-robot/models"
+	"github.com/Hive-Gay/supreme-robot/database"
 	"net/http"
 )
 
@@ -9,10 +9,10 @@ type AccordionDashTemplate struct {
 	templateCommon
 
 	HiveLinkCount int
-	Headers []*models.AccordionHeader
+	Headers       []*database.AccordionHeader
 }
 
-func (s *Server)HandleAccordionDashGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordionDashGet(w http.ResponseWriter, r *http.Request) {
 	// Init template variables
 	tmplVars := &AccordionDashTemplate{}
 	err := initTemplate(w, r, tmplVars)

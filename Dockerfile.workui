@@ -1,6 +1,0 @@
-FROM golang:1.15
-
-RUN go get github.com/gocraft/work/cmd/workwebui
-RUN go install github.com/gocraft/work/cmd/workwebui
-
-CMD workwebui -redis="10.1.70.91:6379" -ns="supreme_robot" -listen=":5040"

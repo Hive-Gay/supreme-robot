@@ -8,7 +8,7 @@ type HomeTemplate struct {
 	templateCommon
 }
 
-func (s *Server)GetHome(w http.ResponseWriter, r *http.Request) {
+func (s *Server) GetHome(w http.ResponseWriter, r *http.Request) {
 
 	// Init template variables
 	tmplVars := &HomeTemplate{}

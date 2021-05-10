@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func (s *Server)HandleLogin(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	// Init Session
 	us := r.Context().Value(SessionKey).(*sessions.Session)
 

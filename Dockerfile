@@ -1,15 +1,22 @@
-FROM golang:1.15 AS builder
+FROM golang:1.16 AS builder
 RUN go get github.com/markbates/pkger/cmd/pkger
 
-RUN mkdir /app
-ADD . /app/
-WORKDIR /app
-RUN go test -v ./...
+WORKDIR /go/src/github.com/Hive-Gay/supreme-robot
+
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
+
+COPY . .
+
 RUN pkger && \
-    CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o supreme_robot
+    CGO_ENABLED=0 go build -a -installsuffix cgo -o supreme-robot
 
 FROM scratch
-COPY --from=builder /etc/ssl /etc/ssl
 
-COPY --from=builder /app/supreme_robot /supreme_robot
-CMD ["/supreme_robot"]
+COPY --from=builder /etc/ssl /etc/ssl
+COPY --from=builder /go/src/github.com/Hive-Gay/supreme-robot/supreme-robot /supreme-robot
+
+WORKDIR /
+CMD ["/supreme-robot"]

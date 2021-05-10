@@ -2,12 +2,12 @@ package webapp
 
 import (
 	"encoding/json"
-	"github.com/Hive-Gay/supreme-robot/models"
+	"github.com/Hive-Gay/supreme-robot/database"
 	"github.com/gorilla/sessions"
 	"net/http"
 )
 
-func (s *Server)HandleOauthCallback(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleOauthCallback(w http.ResponseWriter, r *http.Request) {
 	// Init Session
 	us := r.Context().Value(SessionKey).(*sessions.Session)
 
@@ -74,7 +74,7 @@ func (s *Server)HandleOauthCallback(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (s *Server)processCallback(r *http.Request) (*models.User, error) {
+func (s *Server) processCallback(r *http.Request) (*database.User, error) {
 	oauth2Token, err := s.oauth2Config.Exchange(s.ctx, r.URL.Query().Get("code"))
 	if err != nil {
 		return nil, err
@@ -95,7 +95,7 @@ func (s *Server)processCallback(r *http.Request) (*models.User, error) {
 
 	logger.Tracef("Response From OAUTH: %s", IDTokenClaims)
 
-	user := models.User{}
+	user := database.User{}
 	if err := json.Unmarshal(*IDTokenClaims, &user); err != nil {
 		return nil, err
 	}

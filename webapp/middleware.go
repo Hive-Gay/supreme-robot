@@ -2,7 +2,7 @@ package webapp
 
 import (
 	"context"
-	"github.com/Hive-Gay/supreme-robot/models"
+	"github.com/Hive-Gay/supreme-robot/database"
 	"github.com/Hive-Gay/supreme-robot/util"
 	"github.com/gorilla/sessions"
 	"net/http"
@@ -29,7 +29,7 @@ func (r *ResponseWriterX) WriteHeader(status int) {
 	return
 }
 
-func (s *Server)Middleware(next http.Handler) http.Handler {
+func (s *Server) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -50,9 +50,9 @@ func (s *Server)Middleware(next http.Handler) http.Handler {
 
 		// Retrieve our user and type-assert it
 		val := us.Values["user"]
-		var user = models.User{}
+		var user = database.User{}
 		var ok bool
-		if user, ok = val.(models.User); ok {
+		if user, ok = val.(database.User); ok {
 			ctx = context.WithValue(ctx, UserKey, &user)
 		}
 
@@ -77,7 +77,7 @@ func (s *Server)Middleware(next http.Handler) http.Handler {
 	})
 }
 
-func (s *Server)MiddlewareRequireAuth(next http.Handler) http.Handler {
+func (s *Server) MiddlewareRequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		us := r.Context().Value(SessionKey).(*sessions.Session)
 
@@ -95,7 +95,7 @@ func (s *Server)MiddlewareRequireAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		user := r.Context().Value(UserKey).(*models.User)
+		user := r.Context().Value(UserKey).(*database.User)
 		now := time.Now()
 		if user.ExpiresAt < now.Unix() {
 			// Save current page
@@ -117,7 +117,6 @@ func (s *Server)MiddlewareRequireAuth(next http.Handler) http.Handler {
 			s.returnErrorPage(w, r, http.StatusUnauthorized, "Ask Tyr to join the UWU Crew")
 			return
 		}
-
 
 		next.ServeHTTP(w, r)
 	})

@@ -3,43 +3,37 @@ package webapp
 import (
 	"context"
 	"encoding/gob"
-	"errors"
-	"github.com/Hive-Gay/supreme-robot/jobs"
-	"github.com/Hive-Gay/supreme-robot/models"
-	"github.com/Hive-Gay/supreme-robot/twilio"
+	"github.com/Hive-Gay/supreme-robot/config"
+	"github.com/Hive-Gay/supreme-robot/database"
+	"github.com/Hive-Gay/supreme-robot/redis"
 	"github.com/coreos/go-oidc"
-	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 	"github.com/markbates/pkger"
+	"github.com/rbcervilla/redisstore/v8"
 	"golang.org/x/oauth2"
-	"gopkg.in/boj/redistore.v1"
 	"html/template"
 	"net/http"
 	"net/url"
-	"os"
-	"strings"
 	"time"
 )
 
 type Server struct {
 	webapphostname string
-	enqueuer       *jobs.Enqueuer
 	ctx            context.Context
-	modelClient    *models.Client
-	store          *redistore.RediStore
+	modelClient    *database.Client
+	store          *redisstore.RedisStore
 	oauth2Config   oauth2.Config
 	oauth2Verifier *oidc.IDTokenVerifier
 	router         *mux.Router
+	server         *http.Server
 	templates      *template.Template
-	twilioClient   *twilio.Client
 }
 
-func NewServer(webappHostname, redisAddress string, mc *models.Client, e *jobs.Enqueuer, tc *twilio.Client) (*Server, error) {
+func NewServer(cfg *config.Config, rc *redis.Client, mc *database.Client) (*Server, error) {
 	server := Server{
-		modelClient:  mc,
-		enqueuer:     e,
-		twilioClient: tc,
-		webapphostname: webappHostname,
+		modelClient:    mc,
+		webapphostname: cfg.ExtHostname,
 	}
 
 	// Load Templates
@@ -51,25 +45,20 @@ func NewServer(webappHostname, redisAddress string, mc *models.Client, e *jobs.E
 	server.templates = t
 
 	// Fetch new store.
-	Secret := os.Getenv("SECRET")
-	if Secret == "" {
-		return nil, errors.New("missing env var SECRET")
-	}
-
-	server.store, err = redistore.NewRediStoreWithPool(&redis.Pool{
-		MaxActive: 5,
-		MaxIdle:   5,
-		Wait:      true,
-		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", redisAddress)
-		},
-	}, []byte(Secret))
+	server.store, err = redisstore.NewRedisStore(rc.Client())
 	if err != nil {
 		return nil, err
 	}
 
-	// Register models for GOB
-	gob.Register(models.User{})
+	server.store.KeyPrefix("session_")
+	server.store.Options(sessions.Options{
+		Path:   "/app",
+		Domain: cfg.ExtHostname,
+		MaxAge: 86400 * 60,
+	})
+
+	// Register database for GOB
+	gob.Register(database.User{})
 	gob.Register(templateAlert{})
 
 	// Configure Oauth
@@ -79,39 +68,24 @@ func NewServer(webappHostname, redisAddress string, mc *models.Client, e *jobs.E
 		Path:   "/oauth/callback",
 	}
 
-	if strings.ToUpper(os.Getenv("OAUTH_CALLBACK_HTTPS")) == "FALSE" {
+	if !cfg.OAuthCallbackHTTPS {
 		callbackURL.Scheme = "http"
 	}
 
-	OAuthClientID := os.Getenv("OAUTH_CLIENT_ID")
-	if OAuthClientID == "" {
-		return nil, errors.New("missing env var OAUTH_CLIENT_ID")
-	}
-
-	OAuthClientSecret := os.Getenv("OAUTH_CLIENT_SECRET")
-	if OAuthClientSecret == "" {
-		return nil, errors.New("missing env var OAUTH_CLIENT_SECRET")
-	}
-
-	OAuthProviderURL := os.Getenv("OAUTH_PROVIDER_URL")
-	if OAuthProviderURL == "" {
-		return nil, errors.New("missing env var OAUTH_PROVIDER_URL")
-	}
-
 	server.ctx = context.Background()
-	provider, err := oidc.NewProvider(server.ctx, OAuthProviderURL)
+	provider, err := oidc.NewProvider(server.ctx, cfg.OAuthProviderURL)
 	if err != nil {
 		logger.Errorf("Could not create oidc provider: %s", err.Error())
 		return nil, err
 	}
 
-	oidcConfig := &oidc.Config{ClientID: OAuthClientID}
+	oidcConfig := &oidc.Config{ClientID: cfg.OAuthClientID}
 	server.oauth2Verifier = provider.Verifier(oidcConfig)
 
 	// Configure OAuth2 client
 	server.oauth2Config = oauth2.Config{
-		ClientID:     OAuthClientID,
-		ClientSecret: OAuthClientSecret,
+		ClientID:     cfg.OAuthClientID,
+		ClientSecret: cfg.OAuthClientSecret,
 		RedirectURL:  callbackURL.String(),
 		Endpoint:     provider.Endpoint(),
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
@@ -132,8 +106,6 @@ func NewServer(webappHostname, redisAddress string, mc *models.Client, e *jobs.E
 	server.router.HandleFunc("/login", server.HandleLogin).Methods("GET")
 	server.router.HandleFunc("/logout", HandleLogout).Methods("GET")
 	server.router.HandleFunc("/oauth/callback", server.HandleOauthCallback).Methods("GET")
-	server.router.HandleFunc("/webhook/sms", server.HandleWebhookSMSPost).Methods("POST")
-	server.router.HandleFunc("/webhook/sms/status", server.HandleWebhookSMSStatusPost).Methods("POST")
 
 	// Protected Pages
 	protected := server.router.PathPrefix("/app/").Subrouter()
@@ -156,22 +128,23 @@ func NewServer(webappHostname, redisAddress string, mc *models.Client, e *jobs.E
 	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/edit", server.HandleAccordionLinkEditGet).Methods("GET")
 	protected.HandleFunc("/accordion/{header:[0-9]+}/{link:[0-9]+}/edit", server.HandleAccordionLinkEditPost).Methods("POST")
 
-	// SMS Dashboard
-	protected.HandleFunc("/sms", server.HandleSMSGet).Methods("GET")
-
-	// Mail Dashboard
-	protected.HandleFunc("/admin/mail", server.HandleMailDashGet).Methods("GET")
-
 	return &server, nil
 }
 
-func (s *Server) Run() error {
+func (s *Server) Close() {
+	err := s.server.Close()
+	if err != nil {
+		logger.Warningf("closing server: %s", err.Error())
+	}
+}
 
-	srv := &http.Server{
+func (s *Server) ListenAndServe() error {
+
+	s.server = &http.Server{
 		Handler:      s.router,
 		Addr:         ":5000",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-	return srv.ListenAndServe()
+	return s.server.ListenAndServe()
 }

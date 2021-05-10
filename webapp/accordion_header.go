@@ -3,7 +3,7 @@ package webapp
 import (
 	"database/sql"
 	"fmt"
-	"github.com/Hive-Gay/supreme-robot/models"
+	"github.com/Hive-Gay/supreme-robot/database"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"net/http"
@@ -14,8 +14,8 @@ type AccordionHeaderTemplate struct {
 	templateCommon
 	Breadcrumbs *[]templateBreadcrumb
 
-	Header *models.AccordionHeader
-	Links  []*models.AccordionLink
+	Header *database.AccordionHeader
+	Links  []*database.AccordionLink
 }
 
 type AccordionHeaderFormTemplate struct {
@@ -29,7 +29,7 @@ type AccordionHeaderFormTemplate struct {
 	FormButtonSubmitText   string
 }
 
-func (s *Server)HandleAccordionHeaderAddGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordionHeaderAddGet(w http.ResponseWriter, r *http.Request) {
 	// Init template variables
 	tmplVars := &AccordionHeaderFormTemplate{}
 	err := initTemplate(w, r, tmplVars)
@@ -60,7 +60,7 @@ func (s *Server)HandleAccordionHeaderAddGet(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func (s *Server)HandleAccordionHeaderAddPost(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordionHeaderAddPost(w http.ResponseWriter, r *http.Request) {
 	// parse form data
 	err := r.ParseForm()
 	if err != nil {
@@ -68,7 +68,7 @@ func (s *Server)HandleAccordionHeaderAddPost(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	ah := models.AccordionHeader{
+	ah := database.AccordionHeader{
 		Title: r.Form.Get("title"),
 	}
 
@@ -90,7 +90,7 @@ func (s *Server)HandleAccordionHeaderAddPost(w http.ResponseWriter, r *http.Requ
 	http.Redirect(w, r, "/app/accordion", http.StatusFound)
 }
 
-func (s *Server)HandleAccordionHeaderDeleteGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordionHeaderDeleteGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
@@ -142,7 +142,7 @@ func (s *Server)HandleAccordionHeaderDeleteGet(w http.ResponseWriter, r *http.Re
 	}
 }
 
-func (s *Server)HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	headerID, err := strconv.Atoi(vars["header"])
@@ -179,7 +179,7 @@ func (s *Server)HandleAccordionHeaderDeletePost(w http.ResponseWriter, r *http.R
 	http.Redirect(w, r, "/app/accordion", http.StatusFound)
 }
 
-func (s *Server)HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
@@ -230,7 +230,7 @@ func (s *Server)HandleAccordionHeaderEditGet(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-func (s *Server)HandleAccordionHeaderEditPost(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordionHeaderEditPost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	headerID, err := strconv.Atoi(vars["header"])
@@ -256,7 +256,7 @@ func (s *Server)HandleAccordionHeaderEditPost(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	header.Title =  r.Form.Get("title")
+	header.Title = r.Form.Get("title")
 
 	err = header.Update(s.modelClient)
 	if err != nil {
@@ -276,7 +276,7 @@ func (s *Server)HandleAccordionHeaderEditPost(w http.ResponseWriter, r *http.Req
 	http.Redirect(w, r, "/app/accordion", http.StatusFound)
 }
 
-func (s *Server)HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Init template variables
@@ -294,7 +294,7 @@ func (s *Server)HandleAccordionHeaderGet(w http.ResponseWriter, r *http.Request)
 	}
 
 	if headerID == 0 {
-		tmplVars.Header = &models.AccordionHeader{
+		tmplVars.Header = &database.AccordionHeader{
 			ID:    0,
 			Title: "The Hive",
 		}
