@@ -21,7 +21,10 @@ import (
 type Server struct {
 	webapphostname string
 	ctx            context.Context
-	modelClient    *database.Client
+
+	redis *redis.Client
+	db    *database.Client
+
 	store          *redisstore.RedisStore
 	oauth2Config   oauth2.Config
 	oauth2Verifier *oidc.IDTokenVerifier
@@ -32,7 +35,8 @@ type Server struct {
 
 func NewServer(cfg *config.Config, rc *redis.Client, mc *database.Client) (*Server, error) {
 	server := Server{
-		modelClient:    mc,
+		db:             mc,
+		redis:          rc,
 		webapphostname: cfg.ExtHostname,
 	}
 
@@ -47,12 +51,13 @@ func NewServer(cfg *config.Config, rc *redis.Client, mc *database.Client) (*Serv
 	// Fetch new store.
 	server.store, err = redisstore.NewRedisStore(rc.Client())
 	if err != nil {
+		logger.Errorf("create redis store: %s", err.Error())
 		return nil, err
 	}
 
-	server.store.KeyPrefix("session_")
+	server.store.KeyPrefix(redis.KeySession)
 	server.store.Options(sessions.Options{
-		Path:   "/app",
+		Path:   "/",
 		Domain: cfg.ExtHostname,
 		MaxAge: 86400 * 60,
 	})

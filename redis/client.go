@@ -21,6 +21,9 @@ func NewClient(cfg *config.Config) (*Client, error) {
 		Password: cfg.RedisPassword,
 	})
 
+	// Create context
+	client.ctx = context.Background()
+
 	return &client, nil
 }
 

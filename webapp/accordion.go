@@ -29,7 +29,7 @@ func (s *Server) HandleAccordion(w http.ResponseWriter, r *http.Request) {
 		Title: "The Hive",
 	}
 
-	hiveLinks, err := s.modelClient.ReadAccordionLinks(sql.NullInt32{Valid: false})
+	hiveLinks, err := s.db.ReadAccordionLinks(sql.NullInt32{Valid: false})
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -46,7 +46,7 @@ func (s *Server) HandleAccordion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get other headers
-	mHeaders, err := s.modelClient.ReadAccordionHeaders()
+	mHeaders, err := s.db.ReadAccordionHeaders()
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -57,7 +57,7 @@ func (s *Server) HandleAccordion(w http.ResponseWriter, r *http.Request) {
 			Title: mHeader.Title,
 		}
 
-		headerLinks, err := s.modelClient.ReadAccordionLinks(sql.NullInt32{Valid: true, Int32: int32(mHeader.ID)})
+		headerLinks, err := s.db.ReadAccordionLinks(sql.NullInt32{Valid: true, Int32: int32(mHeader.ID)})
 		if err != nil {
 			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return

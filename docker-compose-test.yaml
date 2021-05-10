@@ -5,8 +5,11 @@ services:
     environment:
       - LOG_LEVEL=trace
       - POSTGRES_DSN=postgresql://test:test@db:5432/supremerobot?sslmode=disable
+      - REDIS_ADDRESS=redis:6379
+    env_file:
+      - ~/.config/hive-test
     ports:
-      - "127.0.0.1:5000:5000"
+      - "5000:5000"
 
   redis:
     image: redis:6

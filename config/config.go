@@ -82,7 +82,7 @@ func CollectConfig() *Config {
 	}
 
 	// REDIS_ADDRESS
-	config.RedisPassword = os.Getenv("REDIS_ADDRESS")
+	config.RedisPassword = os.Getenv("REDIS_PASSWORD")
 
 	// Validation
 	if len(missingEnv) > 0 {

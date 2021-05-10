@@ -48,7 +48,7 @@ func (s *Server) HandleAccordionLinkAddGet(w http.ResponseWriter, r *http.Reques
 			Title: "The Hive",
 		}
 	} else {
-		tmplVars.Header, err = s.modelClient.ReadAccordionHeader(headerID)
+		tmplVars.Header, err = s.db.ReadAccordionHeader(headerID)
 		if err != nil {
 			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
@@ -111,7 +111,7 @@ func (s *Server) HandleAccordionLinkAddPost(w http.ResponseWriter, r *http.Reque
 		al.AccordionHeaderID = sql.NullInt32{Valid: true, Int32: int32(headerID)}
 	}
 
-	err = al.Create(s.modelClient)
+	err = al.Create(s.db)
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -158,7 +158,7 @@ func (s *Server) HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Req
 		headerIDSQL.Valid = true
 		headerIDSQL.Int32 = int32(headerID)
 
-		tmplVars.Header, err = s.modelClient.ReadAccordionHeader(headerID)
+		tmplVars.Header, err = s.db.ReadAccordionHeader(headerID)
 		if err != nil {
 			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
@@ -176,7 +176,7 @@ func (s *Server) HandleAccordionLinkDeleteGet(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	link, err := s.modelClient.ReadAccordionLink(headerIDSQL, linkID)
+	link, err := s.db.ReadAccordionLink(headerIDSQL, linkID)
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -233,7 +233,7 @@ func (s *Server) HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Re
 		headerIDSQL.Valid = true
 		headerIDSQL.Int32 = int32(headerID)
 
-		header, err := s.modelClient.ReadAccordionHeader(headerID)
+		header, err := s.db.ReadAccordionHeader(headerID)
 		if err != nil {
 			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
@@ -251,7 +251,7 @@ func (s *Server) HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	link, err := s.modelClient.ReadAccordionLink(headerIDSQL, linkID)
+	link, err := s.db.ReadAccordionLink(headerIDSQL, linkID)
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -262,7 +262,7 @@ func (s *Server) HandleAccordionLinkDeletePost(w http.ResponseWriter, r *http.Re
 	}
 
 	// Delete link
-	err = link.Delete(s.modelClient)
+	err = link.Delete(s.db)
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -310,7 +310,7 @@ func (s *Server) HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Reque
 		headerIDSQL.Valid = true
 		headerIDSQL.Int32 = int32(headerID)
 
-		tmplVars.Header, err = s.modelClient.ReadAccordionHeader(headerID)
+		tmplVars.Header, err = s.db.ReadAccordionHeader(headerID)
 		if err != nil {
 			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
@@ -328,7 +328,7 @@ func (s *Server) HandleAccordionLinkEditGet(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	link, err := s.modelClient.ReadAccordionLink(headerIDSQL, linkID)
+	link, err := s.db.ReadAccordionLink(headerIDSQL, linkID)
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -383,7 +383,7 @@ func (s *Server) HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Requ
 		headerIDSQL.Valid = true
 		headerIDSQL.Int32 = int32(headerID)
 
-		header, err := s.modelClient.ReadAccordionHeader(headerID)
+		header, err := s.db.ReadAccordionHeader(headerID)
 		if err != nil {
 			s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 			return
@@ -401,7 +401,7 @@ func (s *Server) HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	link, err := s.modelClient.ReadAccordionLink(headerIDSQL, linkID)
+	link, err := s.db.ReadAccordionLink(headerIDSQL, linkID)
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -421,7 +421,7 @@ func (s *Server) HandleAccordionLinkEditPost(w http.ResponseWriter, r *http.Requ
 	link.Title = r.Form.Get("title")
 	link.Link = r.Form.Get("link")
 
-	err = link.Update(s.modelClient)
+	err = link.Update(s.db)
 	if err != nil {
 		s.returnErrorPage(w, r, http.StatusInternalServerError, err.Error())
 		return

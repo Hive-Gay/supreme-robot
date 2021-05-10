@@ -12,6 +12,8 @@ import (
 	"github.com/juju/loggo/loggocolor"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 var logger = loggo.GetLogger("main")
@@ -59,13 +61,25 @@ func main() {
 	errChan := make(chan error)
 
 	// start web server
-	logger.Debugf("starting api server")
+	logger.Debugf("starting web app")
 	go func(errChan chan error) {
 		err := ws.ListenAndServe()
 		if err != nil {
-			errChan <- errors.New(fmt.Sprintf("api: %s", err.Error()))
+			errChan <- errors.New(fmt.Sprintf("webapp: %s", err.Error()))
 		}
 	}(errChan)
 	defer ws.Close()
 
+	// Wait for SIGINT and SIGTERM (HIT CTRL-C)
+	nch := make(chan os.Signal)
+	signal.Notify(nch, syscall.SIGINT, syscall.SIGTERM)
+
+	select {
+	case sig := <-nch:
+		logger.Infof("got sig: %s", sig)
+	case err := <-errChan:
+		logger.Criticalf(err.Error())
+	}
+
+	logger.Infof("main process done")
 }
