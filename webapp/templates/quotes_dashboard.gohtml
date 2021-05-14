@@ -19,18 +19,13 @@
                 <tr>
                     <th scope="col">ID</th>
                     <th scope="col">Text</th>
-                    <th scope="col"></th>
                 </tr>
                 </thead>
                 <tbody>
                 {{- range $index, $ism := .IsmList.Data}}
                     <tr>
-                        <th scope="row"><a href="/app/quotes/isms/{{$ism.Id}}">{{$ism.Id}}</a></th>
+                        <th scope="row">{{$ism.Id}}</th>
                         <td>{{$ism.Text}}</td>
-                        <td class="text-end">
-                            <!--a href="/app/quotes/isms/{{$ism.Id}}/edit" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i></a>
-                            <a href="/app/quotes/isms/{{$ism.Id}}/delete" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash"></i></a-->
-                        </td>
                     </tr>
                 {{- end}}
                 </tbody>
@@ -48,17 +43,12 @@
                 <thead>
                 <tr>
                     <th scope="col">ID</th>
-                    <th scope="col"></th>
                 </tr>
                 </thead>
                 <tbody>
                 {{- range $index, $sayer := .SayerList.Data}}
                     <tr>
-                        <th scope="row"><a href="/app/quotes/sayers/{{$sayer.Id}}">{{$sayer.Id}}</a></th>
-                        <td class="text-end">
-                            <!--a href="/app/quotes/sayers/{{$sayer.Id}}/edit" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i></a>
-                            <a href="/app/quotes/sayers/{{$sayer.Id}}/delete" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash"></i></a-->
-                        </td>
+                        <th scope="row">{{$sayer.Id}}</th>
                     </tr>
                 {{- end}}
                 </tbody>
