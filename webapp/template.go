@@ -91,6 +91,21 @@ type templateHeadLink struct {
 	Type        string
 }
 
+type templateFormButton struct {
+	Color string
+	Text  string
+}
+
+type templateFormInput struct {
+	ID          string
+	Name        string
+	Placeholder string
+	Value       string
+
+	Disabled bool
+	Required bool
+}
+
 type templateNavbarNode struct {
 	Text     string
 	URL      string

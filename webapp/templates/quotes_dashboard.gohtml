@@ -4,15 +4,15 @@
     <div class="row">
         <div class="col">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1><i class="fas quote-right"></i> Quotes Dashboard</h1>
+                <h1><i class="fas fa-quote-right"></i> Quotes Dashboard</h1>
             </div>
         </div>
     </div>
     <div class="row">
-        <div class="col-lg">
+        <div class="col-lg mb-3">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                <h2>Isms</h2>
-                <a href="/app/quotes/add" class="btn btn-outline-success btn-sm"><i class="fas fa-plus"></i></a>
+                <h2>New Quotes</h2>
+                <a href="/app/quotes/ism_add" class="btn btn-outline-success btn-sm"><i class="fas fa-plus"></i></a>
             </div>
             <table class="table table-striped">
                 <thead>
@@ -28,18 +28,21 @@
                         <th scope="row"><a href="/app/quotes/isms/{{$ism.Id}}">{{$ism.Id}}</a></th>
                         <td>{{$ism.Text}}</td>
                         <td class="text-end">
-                            <a href="/app/quotes/isms/{{$ism.Id}}/edit" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i></a>
-                            <a href="/app/quotes/isms/{{$ism.Id}}/delete" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash"></i></a>
+                            <!--a href="/app/quotes/isms/{{$ism.Id}}/edit" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i></a>
+                            <a href="/app/quotes/isms/{{$ism.Id}}/delete" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash"></i></a-->
                         </td>
                     </tr>
                 {{- end}}
                 </tbody>
             </table>
+            <div>
+                <a href="/app/quotes/isms">View All...</a>
+            </div>
         </div>
-        <div class="col-lg">
+        <div class="col-lg mb-3">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                <h2>Sayers</h2>
-                <a href="/app/sayers/add" class="btn btn-outline-success btn-sm"><i class="fas fa-plus"></i></a>
+                <h2>New Sayers</h2>
+                <a href="/app/quotes/sayer_add" class="btn btn-outline-success btn-sm"><i class="fas fa-plus"></i></a>
             </div>
             <table class="table table-striped">
                 <thead>
@@ -53,13 +56,16 @@
                     <tr>
                         <th scope="row"><a href="/app/quotes/sayers/{{$sayer.Id}}">{{$sayer.Id}}</a></th>
                         <td class="text-end">
-                            <a href="/app/quotes/sayers/{{$sayer.Id}}/edit" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i></a>
-                            <a href="/app/quotes/sayers/{{$sayer.Id}}/delete" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash"></i></a>
+                            <!--a href="/app/quotes/sayers/{{$sayer.Id}}/edit" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i></a>
+                            <a href="/app/quotes/sayers/{{$sayer.Id}}/delete" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash"></i></a-->
                         </td>
                     </tr>
                 {{- end}}
                 </tbody>
             </table>
+            <div>
+                <a href="/app/quotes/sayers">View All...</a>
+            </div>
         </div>
     </div>
 </div><!-- /.container -->

@@ -141,6 +141,12 @@ func NewServer(cfg *config.Config, rc *redis.Client, mc *database.Client, qc *qu
 
 	// Quotes Dashboard
 	protected.HandleFunc("/quotes", server.QuotesDashGetHandler).Methods("GET")
+	protected.HandleFunc("/quotes/isms", server.QuotesIsmsGetHandler).Methods("GET")
+	protected.HandleFunc("/quotes/ism_add", server.QuotesIsmAddGetHandler).Methods("GET")
+	protected.HandleFunc("/quotes/ism_add", server.QuotesIsmAddPostHandler).Methods("POST")
+	protected.HandleFunc("/quotes/sayers", server.QuotesSayersGetHandler).Methods("GET")
+	protected.HandleFunc("/quotes/sayer_add", server.QuotesSayerAddGetHandler).Methods("GET")
+	protected.HandleFunc("/quotes/sayer_add", server.QuotesSayerAddPostHandler).Methods("POST")
 
 	return &server, nil
 }
@@ -153,7 +159,6 @@ func (s *Server) Close() {
 }
 
 func (s *Server) ListenAndServe() error {
-
 	s.server = &http.Server{
 		Handler:      s.router,
 		Addr:         ":5000",

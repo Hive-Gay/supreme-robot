@@ -1,0 +1,6 @@
+{{ define "form_input_text" -}}
+<input type="text" class="form-control" id="input-{{.ID}}"{{if ne .Placeholder ""}} placeholder="{{.Placeholder}}"{{end}} name="{{.Name}}"{{if ne .Value ""}} value="{{.Value}}"{{end}}{{if .Disabled}} disabled{{end}}{{if .Required}} required{{end}}>
+{{- end }}
+{{ define "form_input_button" -}}
+<button type="submit" class="btn btn-{{.Color}}">{{.Text}}</button>
+{{- end }}

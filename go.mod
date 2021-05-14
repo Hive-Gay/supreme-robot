@@ -3,7 +3,7 @@ module github.com/Hive-Gay/supreme-robot
 go 1.15
 
 require (
-	github.com/Hive-Gay/go-hivelib v0.26.0
+	github.com/Hive-Gay/go-hivelib v0.28.3
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/go-redis/redis/v8 v8.8.2
 	github.com/google/uuid v1.0.0
